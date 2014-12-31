@@ -18,9 +18,9 @@ namespace DiscreteApproach
 
         public string Perceive(string info)
         {
-            reasoner.ApplyTruthBasis(info == "0" ? 3 : 4);
-            reasoner.InitNextGeneration(); 
-            reasoner.AddSensorInfo(info);
+            reasoner.ApplyTruthRule(info == "0" ? 3 : 4);
+            reasoner.InitNextGeneration();
+            reasoner.AddSensorInfo(info == "0" ? 1 : 2);
             reasoner.NextLogicStep();
             var confirmRuleSets = reasoner.GetConfirmRuleSets();
             return confirmRuleSets[0].Count() > confirmRuleSets[1].Count() ? "D" : "U";

@@ -14,6 +14,7 @@ namespace DiscreteApproach
         private List<int> activeRules;
         private List<int> executedRules;
         private int[] BasicOutputRules = new[] { 3, 4 };
+        private static int FirstBasisOutputRule = 3;
 
         public Reasoner(Rule[] rules)
         {
@@ -40,7 +41,7 @@ namespace DiscreteApproach
 
             foreach (var basicRule in BasicOutputRules)
             {
-                relatedToBasisActiveRulesLists[basicRule - 3] = GetAllUpperRules(basicRule);
+                relatedToBasisActiveRulesLists[basicRule - FirstBasisOutputRule] = GetAllUpperRules(basicRule);
             }
 
             return relatedToBasisActiveRulesLists.Select(list => list.ToArray()).ToArray();
@@ -91,12 +92,12 @@ namespace DiscreteApproach
             activeRules = newActiveRules;
         }
 
-        public void ApplyTruthBasis(int truthBasis)
+        public void ApplyTruthRule(int truthRule)
         {
             var newExecutedRules = new List<int>();
             var confirmRuleSets = GetConfirmRuleSets();
 
-            foreach (var confirmedConsequence in confirmRuleSets[truthBasis-3])
+            foreach (var confirmedConsequence in confirmRuleSets[truthRule-FirstBasisOutputRule])
             {
                 var confirmedRules = _rules.Where(rule => rule.Result == confirmedConsequence && executedRules.Contains(rule.Name)).Select(rule => rule.Name).ToList();
                 newExecutedRules.AddRange(confirmedRules);
@@ -112,9 +113,9 @@ namespace DiscreteApproach
             executedRules = new List<int>();
         }
 
-        public void AddSensorInfo(string i)
+        public void AddSensorInfo(int i)
         {
-            ActiveRules.Add(i == "0" ? 1 : 2);
+            ActiveRules.Add(i);
         }
     }
 
@@ -241,7 +242,7 @@ namespace DiscreteApproach
             reasoner.ActiveRules = new[] { 7, 5, 3, 6, 4 }.ToList();
             reasoner.ExecutedRules = new[] {5, 6, 8 }.ToList();
 
-            reasoner.ApplyTruthBasis(4);
+            reasoner.ApplyTruthRule(4);
 
             Assert.Equal(new[] { 7, 5, 3, 6, 4 }, reasoner.ActiveRules);
             Assert.Equal(new[] { 6, 8 }, reasoner.ExecutedRules);
@@ -281,9 +282,9 @@ namespace DiscreteApproach
 
             var reasoner = new Reasoner(rules);
             
-            reasoner.AddSensorInfo("1");
+            reasoner.AddSensorInfo(2);
             reasoner.NextLogicStep();
-            reasoner.ApplyTruthBasis(3);
+            reasoner.ApplyTruthRule(3);
             reasoner.InitNextGeneration(); 
 
             reasoner.ActiveRules.Add(1);
@@ -307,12 +308,12 @@ namespace DiscreteApproach
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.AddSensorInfo("0");
+            reasoner.AddSensorInfo(1);
             reasoner.NextLogicStep();
-            reasoner.ApplyTruthBasis(3);
+            reasoner.ApplyTruthRule(3);
             reasoner.InitNextGeneration();
 
-            reasoner.AddSensorInfo("0");
+            reasoner.AddSensorInfo(1);
             reasoner.NextLogicStep();
             var confirmRuleSets = reasoner.GetConfirmRuleSets();
 
