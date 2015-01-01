@@ -22,8 +22,10 @@ namespace DiscreteApproach
             reasoner.InitNextGeneration();
             reasoner.AddSensorInfo(info == "0" ? 1 : 2);
             reasoner.NextLogicStep();
-            var confirmRuleSets = reasoner.GetConfirmRuleSets();
-            return confirmRuleSets[0].Count() > confirmRuleSets[1].Count() ? "D" : "U";
+            var effectResults = reasoner.CalcEffectResults();
+
+            if (Math.Abs(effectResults[0] - effectResults[1]) < 0.001) return "_";
+            return effectResults[0] > effectResults[1] ? "D" : "U";
         }
 
         public string PerceiveChain(string chain)
@@ -146,5 +148,27 @@ namespace DiscreteApproach
 
             Assert.Equal("D", reaction);
         }
+
+        [Fact]
+        public void Perceive_ShouldRecognize0As00Sequence()
+        {
+            var rules = new Rule[]
+                {
+                    new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0.1}, 
+                    new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
+                    new Rule(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
+                    new Rule(){Name = 8, Cause = 7, Result = 6, Weight = 0},
+                    new Rule(){Name = 9, Cause = 5, Result = 5, Weight = 0},
+                };
+
+            var reasoner = new Reasoner(rules);
+
+            var binaryBrain = new BinaryBrain(reasoner);
+
+            var reaction = binaryBrain.Perceive("0");
+
+            Assert.Equal("D", reaction);
+        }
+
     }
 }
