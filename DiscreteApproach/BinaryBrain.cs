@@ -170,5 +170,74 @@ namespace DiscreteApproach
             Assert.Equal("D", reaction);
         }
 
+        [Fact]
+        public void Perceive_ShouldLearn0Sequence()
+        {
+            var rules = new Rule[]
+                {
+                    new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
+                    new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
+                };
+
+            var reasoner = new Reasoner(rules);
+
+            var binaryBrain = new BinaryBrain(reasoner);
+
+            binaryBrain.Perceive("0");
+            
+            var reaction = binaryBrain.Perceive("0");
+
+            Assert.Equal("D", reaction);
+        }
+
+        [Fact]
+        public void Perceive_ShouldLearn01Sequence()
+        {
+            var rules = new Rule[]
+                {
+                    new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
+                    new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
+                    new Rule(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
+                    new Rule(){Name = 8, Cause = 2, Result = 4, Weight = 0},
+                };
+
+            var reasoner = new Reasoner(rules);
+
+            var binaryBrain = new BinaryBrain(reasoner);
+
+            binaryBrain.Perceive("0");
+            binaryBrain.Perceive("1");
+            binaryBrain.Perceive("0");
+            binaryBrain.Perceive("1");
+
+            var reaction = binaryBrain.Perceive("0");
+
+            Assert.Equal("U", reaction);
+
+            reaction = binaryBrain.Perceive("1");
+            Assert.Equal("D", reaction);
+        }
+
+        [Fact]
+        public void Perceive_ShouldLearn01And0Sequences()
+        {
+            var rules = new Rule[]
+                {
+                    new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
+                    new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
+                    new Rule(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
+                    new Rule(){Name = 8, Cause = 2, Result = 4, Weight = 0},
+                    new Rule(){Name = 9, Cause = 7, Result = 6, Weight = 0},
+                    new Rule(){Name = 10, Cause = 5, Result = 5, Weight = 0},
+                };
+
+            var reasoner = new Reasoner(rules);
+
+            var binaryBrain = new BinaryBrain(reasoner);
+
+            var reaction = binaryBrain.PerceiveChain("000000101010101000001010100");
+
+            Assert.Equal("D", reaction);
+        }
     }
 }

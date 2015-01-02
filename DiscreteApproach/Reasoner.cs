@@ -97,17 +97,44 @@ namespace DiscreteApproach
             activeRules = newActiveRules;
         }
 
-        public void ApplyTruthRule(int truthRule)
+        public void ApplyTruthRule(int truthOutput)
         {
             var newExecutedRules = new List<int>();
-            var confirmRuleSets = GetConfirmRuleSets();
+            var confirmRuleSets = GetConfirmRuleSets2();
+            var effectResult = this.CalcEffectResults();
 
-            foreach (var confirmedConsequence in confirmRuleSets[truthRule-FirstBasisOutputRule])
+            int prefferedOutput = 0;
+            if (effectResult[0] != effectResult[1])
             {
-                var confirmedRules = _rules.Where(rule => rule.Result == confirmedConsequence && executedRules.Contains(rule.Name)).Select(rule => rule.Name).ToList();
-                newExecutedRules.AddRange(confirmedRules);
+                prefferedOutput = effectResult[0] > effectResult[1] ? 3 : 4;
             }
 
+            if (prefferedOutput == truthOutput || prefferedOutput == 0)
+            {
+                foreach (var confirmedRule in confirmRuleSets[truthOutput - FirstBasisOutputRule])
+                {
+                    var r = _rules.FirstOrDefault(rule => rule.Name == confirmedRule.Name);
+                    if (r != null)
+                    {
+                        r.Weight += 0.2;
+                        r.Weight = Math.Min(1, r.Weight);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var confirmedRule in confirmRuleSets[prefferedOutput - FirstBasisOutputRule])
+                {
+                    var r = _rules.FirstOrDefault(rule => rule.Name == confirmedRule.Name);
+                    if (r != null)
+                    {
+                        r.Weight -= 0.2;
+                        r.Weight = Math.Max(0, r.Weight);
+                    }
+                }
+            }
+
+            newExecutedRules.AddRange(confirmRuleSets[truthOutput - FirstBasisOutputRule].Select(rule => rule.Name));
             newExecutedRules.Sort();
             executedRules = newExecutedRules;
         }
