@@ -46,12 +46,12 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldRecognize010Sequence()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -67,12 +67,12 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldRecognize0101Sequence()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -89,13 +89,13 @@ namespace DiscreteApproach
         [Fact]
         public void PerceiveChain_ShouldRecognize010100Sequence()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6},
-                    new Rule(){Name = 9, Cause = 5, Result = 5},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Name = 9, Cause = 5, Result = 5},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -110,13 +110,13 @@ namespace DiscreteApproach
         [Fact]
         public void PerceiveChain_ShouldRecognize000010Sequence()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6},
-                    new Rule(){Name = 9, Cause = 5, Result = 5},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Name = 9, Cause = 5, Result = 5},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -131,12 +131,12 @@ namespace DiscreteApproach
         [Fact]
         public void PerceiveChain_ShouldRecognize01SequenceAlternative()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 4},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 4},
                     
                 };
 
@@ -152,13 +152,13 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldRecognize0As00Sequence()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0.1}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6, Weight = 0},
-                    new Rule(){Name = 9, Cause = 5, Result = 5, Weight = 0},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3, Weight = 0.1}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6, Weight = 0},
+                    new RuleInfo(){Name = 9, Cause = 5, Result = 5, Weight = 0},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -173,10 +173,10 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldLearn0Sequence()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
                 };
 
             var reasoner = new Reasoner(rules);
@@ -193,12 +193,12 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldLearn01Sequence()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
-                    new Rule(){Name = 8, Cause = 2, Result = 4, Weight = 0},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
+                    new RuleInfo(){Name = 8, Cause = 2, Result = 4, Weight = 0},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -221,14 +221,14 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldLearn01And0Sequences()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
-                    new Rule(){Name = 8, Cause = 2, Result = 4, Weight = 0},
-                    new Rule(){Name = 9, Cause = 7, Result = 6, Weight = 0},
-                    new Rule(){Name = 10, Cause = 5, Result = 5, Weight = 0},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
+                    new RuleInfo(){Name = 8, Cause = 2, Result = 4, Weight = 0},
+                    new RuleInfo(){Name = 9, Cause = 7, Result = 6, Weight = 0},
+                    new RuleInfo(){Name = 10, Cause = 5, Result = 5, Weight = 0},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -243,7 +243,7 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldLearn0SequenceFromScratch()
         {
-            var rules = new List<Rule>();
+            var rules = new List<RuleInfo>();
 
             var reasoner = new Reasoner(rules);
 
@@ -257,7 +257,7 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldLearn0And01SequencesFromScratch()
         {
-            var rules = new List<Rule>();
+            var rules = new List<RuleInfo>();
 
             var reasoner = new Reasoner(rules);
 
@@ -275,7 +275,7 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldLearn110SequencesFromScratch()
         {
-            var rules = new List<Rule>();
+            var rules = new List<RuleInfo>();
 
             var reasoner = new Reasoner(rules);
 
@@ -290,7 +290,7 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldLearn110And1110SequencesFromScratch()
         {
-            var rules = new List<Rule>();
+            var rules = new List<RuleInfo>();
 
             var reasoner = new Reasoner(rules);
 

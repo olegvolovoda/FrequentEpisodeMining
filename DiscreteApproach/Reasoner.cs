@@ -1,27 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace DiscreteApproach
 {
     public class Reasoner
     {
-        private List<Rule> _rules;
+        //private Dictionary<int, RuleInfo> _rules;
 
         private List<int> inputRules;
         private List<int> outputRules = new List<int>();
         private List<int> executedRules;
         private int[] BasicOutputRules = new[] { 3, 4 };
         private static int FirstBasisOutputRule = 3;
+        private readonly RulesRepo _rulesRepo;
 
-        public Reasoner(List<Rule> rules)
+        public Reasoner(List<RuleInfo> ruleInfos)
         {
             inputRules = new List<int>();
-            this._rules = rules;
+            _rulesRepo = new RulesRepo(ruleInfos);
             ExecutedRules = new List<int>();
+
+            //_rules = new Dictionary<int, RuleInfo>();
+            //_rules.Add(1, new RuleInfo(){Name = 1});
+            //_rules.Add(2, new RuleInfo(){Name = 2});
+            //_rules.Add(3, new RuleInfo(){Name = 3});
+            //_rules.Add(4, new RuleInfo(){Name = 4});
+
+            //foreach (var ruleInfo in ruleInfos)
+            //{
+            //    _rules.Add(ruleInfo.Name, new RuleInfo(){Cause = ruleInfo.Cause, Result = ruleInfo.Result, Name = ruleInfo.Name, Weight = ruleInfo.Weight});
+            //}
         }
 
         public List<int> InputRules
@@ -47,9 +57,9 @@ namespace DiscreteApproach
             return GetConfirmRuleSets2().Select(rules => rules.Select(rule => rule.Result).ToArray()).ToArray();
         }
 
-        public Rule[][] GetConfirmRuleSets2()
+        public RuleInfo[][] GetConfirmRuleSets2()
         {
-            var relatedToBasisActiveRulesLists = new List<Rule>[2];
+            var relatedToBasisActiveRulesLists = new List<RuleInfo>[2];
 
             foreach (var basicRule in BasicOutputRules)
             {
@@ -59,11 +69,11 @@ namespace DiscreteApproach
             return relatedToBasisActiveRulesLists.Select(list => list.ToArray()).ToArray();
         }
 
-        private List<Rule> GetAllUpperRules(int basicRule)
+        private List<RuleInfo> GetAllUpperRules(int basicRule)
         {
-            var upperRules = new List<Rule>();
+            var upperRules = new List<RuleInfo>();
 
-            var higherActiveRules = _rules.Where(rule => rule.Result == basicRule && OutputRules.Contains(basicRule) && executedRules.Contains(rule.Name));
+            var higherActiveRules = _rulesRepo.GetRuleByResult(basicRule).Where(rule => OutputRules.Contains(basicRule) && executedRules.Contains(rule.Name));
             foreach (var higherActiveRule in higherActiveRules)
             {
                 upperRules.Add(higherActiveRule);
@@ -79,7 +89,7 @@ namespace DiscreteApproach
             executedRules = new List<int>();
             foreach (var activeRule in InputRules)
             {
-                var allUpperRules = _rules.Where(rule => rule.Cause == activeRule).ToList();
+                var allUpperRules = _rulesRepo.GetRuleByCause(activeRule).ToList();
                 foreach (var upperRule in allUpperRules)
                 {
                     outputRules.Add(upperRule.Result);    
@@ -110,17 +120,16 @@ namespace DiscreteApproach
             newExecutedRules.Sort();
             executedRules = newExecutedRules;
 
-            Console.Out.WriteLine(_rules.Count);
         }
 
-        public void AlignWeights(int truthOutput, Rule[][] confirmedRuleSets, int prefferedOutput)
+        public void AlignWeights(int truthOutput, RuleInfo[][] confirmedRuleSets, int prefferedOutput)
         {
 
             if (prefferedOutput == truthOutput || prefferedOutput == 0)
             {
                 foreach (var confirmedRule in confirmedRuleSets[truthOutput - FirstBasisOutputRule])
                 {
-                    var r = _rules.FirstOrDefault(rule => rule.Name == confirmedRule.Name);
+                    var r = _rulesRepo.GetRuleByName(confirmedRule.Name);
                     if (r != null)
                     {
                         r.Weight += 0.2;
@@ -132,7 +141,7 @@ namespace DiscreteApproach
             {
                 foreach (var confirmedRule in confirmedRuleSets[prefferedOutput - FirstBasisOutputRule])
                 {
-                    var r = _rules.FirstOrDefault(rule => rule.Name == confirmedRule.Name);
+                    var r = _rulesRepo.GetRuleByName(confirmedRule.Name);
                     if (r != null)
                     {
                         r.Weight -= 0.2;
@@ -147,29 +156,18 @@ namespace DiscreteApproach
                 {
                     foreach (var inputRule in inputRules)
                     {
-                        if (RuleIsNotDuplicateEdge(inputRule, confirmedOutput))
+                        if (_rulesRepo.RuleIsNotDuplicateEdge(inputRule, confirmedOutput))
                         {
-                            //if (RulesAreOnTheSameHeight(inputRule, confirmedOutput))
-                            {
-                                _rules.Add(new Rule
-                                    {
-                                        Cause = inputRule,
-                                        Name = _rules.Any() ? _rules.Max(rule => rule.Name) + 1 : 5,
-                                        Result = confirmedOutput,
-                                        Weight = 0.2
-                                    });
-                            }
+                            var newRule = new RuleInfo
+                                {
+                                    Cause = inputRule, Result = confirmedOutput, Weight = 0.2
+                                };
+
+                            _rulesRepo.AddRule(newRule);
                         }
                     }
                 }
             }
-        }
-
-        private bool RuleIsNotDuplicateEdge(int inputRule, int confirmedOutput)
-        {
-            return !_rules.Any(rule => rule.Cause == inputRule && rule.Result == confirmedOutput)
-                   && !_rules.Any(rule => rule.Cause == inputRule && rule.Name == confirmedOutput)
-                   && !_rules.Any(rule => rule.Name == inputRule && rule.Result == confirmedOutput);
         }
 
         public void InitNextGeneration()
@@ -189,13 +187,21 @@ namespace DiscreteApproach
         }
     }
 
-    public class Rule
+    public class RuleInfo
     {
-        public Rule()
+        public RuleInfo()
         {
             Weight = 1;
         }
 
+        public int Name;
+        public int Cause;
+        public int Result;
+        public double Weight;
+    }
+
+    public class Rule
+    {
         public int Name;
         public int Cause;
         public int Result;
@@ -207,9 +213,9 @@ namespace DiscreteApproach
         [Fact]
         public void CalcConsequences_SholdProcessRule()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
                 };
 
             var reasoner = new Reasoner(rules);
@@ -224,12 +230,12 @@ namespace DiscreteApproach
         [Fact]
         public void CalcConsequences_ShouldProcessFewRules()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -244,12 +250,12 @@ namespace DiscreteApproach
         [Fact]
         public void GetBasisRules_ShouldGoToBasis()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -265,12 +271,12 @@ namespace DiscreteApproach
         [Fact]
         public void GetBasisRules_ShouldGoToBasis2()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -286,13 +292,13 @@ namespace DiscreteApproach
         [Fact]
         public void GetBasisRules_ShouldGiveInfoAboutActiveRelatedToBasisRules()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6},
-                    new Rule(){Name = 9, Cause = 5, Result = 5},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Name = 9, Cause = 5, Result = 5},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -308,12 +314,12 @@ namespace DiscreteApproach
         [Fact]
         public void ApplyTruthBasis_ShouldLeftOnlyNodesThatLeadsToTruth()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -329,12 +335,12 @@ namespace DiscreteApproach
         [Fact]
         public void ApplyTruthBasis_ShouldLeftOnlyNodesThatLeadsToTruth2()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -350,12 +356,12 @@ namespace DiscreteApproach
         [Fact]
         public void ApplyTruthBasis_ShouldRecognize10Sequence()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -376,13 +382,13 @@ namespace DiscreteApproach
         [Fact]
         public void ApplyTruthBasis_ShouldRecognize0Sequence()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6},
-                    new Rule(){Name = 9, Cause = 5, Result = 5},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Name = 9, Cause = 5, Result = 5},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -402,13 +408,13 @@ namespace DiscreteApproach
         [Fact]
         public void GetConfirmRuleSets2_()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6, Weight = 1},
-                    new Rule(){Name = 9, Cause = 5, Result = 5, Weight = 1},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6, Weight = 1},
+                    new RuleInfo(){Name = 9, Cause = 5, Result = 5, Weight = 1},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -426,13 +432,13 @@ namespace DiscreteApproach
         [Fact]
         public void GetConfirmRuleSets2_ShouldCalcEffectResults()
         {
-            var rules = new List<Rule>
+            var rules = new List<RuleInfo>
                 {
-                    new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0.2}, 
-                    new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0.2}, 
-                    new Rule(){Name = 7, Cause = 2, Result = 3, Weight = 0.2}, 
-                    new Rule(){Name = 8, Cause = 7, Result = 6, Weight = 1},
-                    new Rule(){Name = 9, Cause = 5, Result = 5, Weight = 1},
+                    new RuleInfo(){Name = 5, Cause = 1, Result = 3, Weight = 0.2}, 
+                    new RuleInfo(){Name = 6, Cause = 1, Result = 4, Weight = 0.2}, 
+                    new RuleInfo(){Name = 7, Cause = 2, Result = 3, Weight = 0.2}, 
+                    new RuleInfo(){Name = 8, Cause = 7, Result = 6, Weight = 1},
+                    new RuleInfo(){Name = 9, Cause = 5, Result = 5, Weight = 1},
                 };
 
             var reasoner = new Reasoner(rules);
