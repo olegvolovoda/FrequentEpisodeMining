@@ -9,30 +9,37 @@ namespace DiscreteApproach
 {
     public class Reasoner
     {
-        private Rule[] _rules;
+        private List<Rule> _rules;
 
-        private List<int> activeRules;
+        private List<int> inputRules;
+        private List<int> outputRules = new List<int>();
         private List<int> executedRules;
         private int[] BasicOutputRules = new[] { 3, 4 };
         private static int FirstBasisOutputRule = 3;
 
-        public Reasoner(Rule[] rules)
+        public Reasoner(List<Rule> rules)
         {
-            activeRules = new List<int>();
+            inputRules = new List<int>();
             this._rules = rules;
             ExecutedRules = new List<int>();
         }
 
-        public List<int> ActiveRules
+        public List<int> InputRules
         {
-            get { return activeRules; }
-            set { activeRules = value; }
+            get { return inputRules; }
+            set { inputRules = value; }
         }
 
         public List<int> ExecutedRules
         {
             get { return executedRules; }
             set { executedRules = value; }
+        }
+
+        public List<int> OutputRules
+        {
+            get { return outputRules; }
+            set { outputRules = value; }
         }
 
         public int[][] GetConfirmRuleSets()
@@ -56,19 +63,7 @@ namespace DiscreteApproach
         {
             var upperRules = new List<Rule>();
 
-            if (BasicOutputRules.Contains(basicRule))
-            {
-                if (ActiveRules.Contains(basicRule))
-                {
-                    //upperRules.Add(new Rule(){Name = 0, Cause = 0, Result = basicRule, Weight = 0});
-                }
-                else
-                {
-                    //return new List<Rule>();
-                }
-            }
-
-            var higherActiveRules = _rules.Where(rule => rule.Result == basicRule && ActiveRules.Contains(basicRule) && executedRules.Contains(rule.Name));
+            var higherActiveRules = _rules.Where(rule => rule.Result == basicRule && OutputRules.Contains(basicRule) && executedRules.Contains(rule.Name));
             foreach (var higherActiveRule in higherActiveRules)
             {
                 upperRules.Add(higherActiveRule);
@@ -80,27 +75,28 @@ namespace DiscreteApproach
 
         public void NextLogicStep()
         {
-            var newActiveRules = new List<int>();
+            var outputRules = new List<int>();
             executedRules = new List<int>();
-            foreach (var activeRule in ActiveRules)
+            foreach (var activeRule in InputRules)
             {
                 var allUpperRules = _rules.Where(rule => rule.Cause == activeRule).ToList();
                 foreach (var upperRule in allUpperRules)
                 {
-                    newActiveRules.Add(upperRule.Result);    
+                    outputRules.Add(upperRule.Result);    
                     executedRules.Add(upperRule.Name);
                 }
             }
 
-            newActiveRules.Sort();
+            outputRules.Sort();
             executedRules.Sort();
-            activeRules = newActiveRules;
+            this.outputRules = outputRules;
         }
 
         public void ApplyTruthRule(int truthOutput)
         {
             var newExecutedRules = new List<int>();
             var confirmRuleSets = GetConfirmRuleSets2();
+
             var effectResult = this.CalcEffectResults();
 
             int prefferedOutput = 0;
@@ -108,10 +104,21 @@ namespace DiscreteApproach
             {
                 prefferedOutput = effectResult[0] > effectResult[1] ? 3 : 4;
             }
+            AlignWeights(truthOutput, confirmRuleSets, prefferedOutput);
+
+            newExecutedRules.AddRange(confirmRuleSets[truthOutput - FirstBasisOutputRule].Select(rule => rule.Name));
+            newExecutedRules.Sort();
+            executedRules = newExecutedRules;
+
+            Console.Out.WriteLine(_rules.Count);
+        }
+
+        public void AlignWeights(int truthOutput, Rule[][] confirmedRuleSets, int prefferedOutput)
+        {
 
             if (prefferedOutput == truthOutput || prefferedOutput == 0)
             {
-                foreach (var confirmedRule in confirmRuleSets[truthOutput - FirstBasisOutputRule])
+                foreach (var confirmedRule in confirmedRuleSets[truthOutput - FirstBasisOutputRule])
                 {
                     var r = _rules.FirstOrDefault(rule => rule.Name == confirmedRule.Name);
                     if (r != null)
@@ -123,7 +130,7 @@ namespace DiscreteApproach
             }
             else
             {
-                foreach (var confirmedRule in confirmRuleSets[prefferedOutput - FirstBasisOutputRule])
+                foreach (var confirmedRule in confirmedRuleSets[prefferedOutput - FirstBasisOutputRule])
                 {
                     var r = _rules.FirstOrDefault(rule => rule.Name == confirmedRule.Name);
                     if (r != null)
@@ -134,20 +141,46 @@ namespace DiscreteApproach
                 }
             }
 
-            newExecutedRules.AddRange(confirmRuleSets[truthOutput - FirstBasisOutputRule].Select(rule => rule.Name));
-            newExecutedRules.Sort();
-            executedRules = newExecutedRules;
+            if (prefferedOutput == 0 || prefferedOutput != truthOutput)
+            {
+                foreach (var confirmedOutput in confirmedRuleSets[truthOutput - FirstBasisOutputRule].Select(rule => rule.Name).Union(new int[]{truthOutput}))
+                {
+                    foreach (var inputRule in inputRules)
+                    {
+                        if (RuleIsNotDuplicateEdge(inputRule, confirmedOutput))
+                        {
+                            //if (RulesAreOnTheSameHeight(inputRule, confirmedOutput))
+                            {
+                                _rules.Add(new Rule
+                                    {
+                                        Cause = inputRule,
+                                        Name = _rules.Any() ? _rules.Max(rule => rule.Name) + 1 : 5,
+                                        Result = confirmedOutput,
+                                        Weight = 0.2
+                                    });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private bool RuleIsNotDuplicateEdge(int inputRule, int confirmedOutput)
+        {
+            return !_rules.Any(rule => rule.Cause == inputRule && rule.Result == confirmedOutput)
+                   && !_rules.Any(rule => rule.Cause == inputRule && rule.Name == confirmedOutput)
+                   && !_rules.Any(rule => rule.Name == inputRule && rule.Result == confirmedOutput);
         }
 
         public void InitNextGeneration()
         {
-            activeRules = executedRules;
+            inputRules = executedRules;
             executedRules = new List<int>();
         }
 
         public void AddSensorInfo(int i)
         {
-            ActiveRules.Add(i);
+            InputRules.Add(i);
         }
 
         public double[] CalcEffectResults()
@@ -174,24 +207,24 @@ namespace DiscreteApproach
         [Fact]
         public void CalcConsequences_SholdProcessRule()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.ActiveRules = new int[] { 1 }.ToList();
+            reasoner.InputRules = new int[] { 1 }.ToList();
 
             reasoner.NextLogicStep();
 
-            Assert.Equal(new int[] { 3 }, reasoner.ActiveRules);
+            Assert.Equal(new int[] { 3 }, reasoner.OutputRules);
             Assert.Equal(new int[] { 5 }, reasoner.ExecutedRules);
         }
 
         [Fact]
         public void CalcConsequences_ShouldProcessFewRules()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -201,17 +234,17 @@ namespace DiscreteApproach
 
             var reasoner = new Reasoner(rules);
 
-            reasoner.ActiveRules = new int[] {1, 7}.ToList();
+            reasoner.InputRules = new int[] {1, 7}.ToList();
             reasoner.NextLogicStep();
 
-            Assert.Equal(new int[]{3, 4, 6}, reasoner.ActiveRules);
+            Assert.Equal(new int[] { 3, 4, 6 }, reasoner.OutputRules);
             Assert.Equal(new int[] { 5, 6, 8 }, reasoner.ExecutedRules);
         }
 
         [Fact]
         public void GetBasisRules_ShouldGoToBasis()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -220,7 +253,7 @@ namespace DiscreteApproach
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.ActiveRules = new[] { 3, 6 }.ToList();
+            reasoner.OutputRules = new[] { 3, 6 }.ToList();
             reasoner.ExecutedRules = new[] { 5, 8 }.ToList();
 
             var basisConsequences = reasoner.GetConfirmRuleSets();
@@ -232,7 +265,7 @@ namespace DiscreteApproach
         [Fact]
         public void GetBasisRules_ShouldGoToBasis2()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -241,7 +274,7 @@ namespace DiscreteApproach
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.ActiveRules = new[] {3, 6, 4}.ToList();
+            reasoner.OutputRules = new[] { 3, 6, 4 }.ToList();
             reasoner.ExecutedRules = new[] {5, 8, 6}.ToList();
 
             var basisConsequences = reasoner.GetConfirmRuleSets();
@@ -253,7 +286,7 @@ namespace DiscreteApproach
         [Fact]
         public void GetBasisRules_ShouldGiveInfoAboutActiveRelatedToBasisRules()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -263,7 +296,7 @@ namespace DiscreteApproach
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.ActiveRules = new[] { 5, 3, 6, 4 }.ToList();
+            reasoner.OutputRules = new[] { 5, 3, 6, 4 }.ToList();
             reasoner.ExecutedRules = new[] { 9, 5, 8, 6 }.ToList();
 
             var relatedToBasisActiveRules = reasoner.GetConfirmRuleSets();
@@ -275,7 +308,7 @@ namespace DiscreteApproach
         [Fact]
         public void ApplyTruthBasis_ShouldLeftOnlyNodesThatLeadsToTruth()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -284,19 +317,19 @@ namespace DiscreteApproach
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.ActiveRules = new[] { 7, 5, 3, 6, 4 }.ToList();
+            reasoner.OutputRules = new[] { 7, 5, 3, 6, 4 }.ToList();
             reasoner.ExecutedRules = new[] {5, 6, 8 }.ToList();
 
             reasoner.ApplyTruthRule(4);
 
-            Assert.Equal(new[] { 7, 5, 3, 6, 4 }, reasoner.ActiveRules);
+            Assert.Equal(new[] { 7, 5, 3, 6, 4 }, reasoner.OutputRules);
             Assert.Equal(new[] { 6, 8 }, reasoner.ExecutedRules);
         }
 
         [Fact]
         public void ApplyTruthBasis_ShouldLeftOnlyNodesThatLeadsToTruth2()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -305,19 +338,19 @@ namespace DiscreteApproach
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.ActiveRules = new[] { 7, 5, 3, 6, 4 }.ToList();
+            reasoner.InputRules = new[] { 7, 5, 3, 6, 4 }.ToList();
             reasoner.ExecutedRules = new[] { 5, 6, 8 }.ToList();
 
             reasoner.InitNextGeneration();
 
-            Assert.Equal(new[] { 5, 6, 8 }, reasoner.ActiveRules);
+            Assert.Equal(new[] { 5, 6, 8 }, reasoner.InputRules);
             Assert.Equal(new int[] { }, reasoner.ExecutedRules);
         }
 
         [Fact]
         public void ApplyTruthBasis_ShouldRecognize10Sequence()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -332,7 +365,7 @@ namespace DiscreteApproach
             reasoner.ApplyTruthRule(3);
             reasoner.InitNextGeneration(); 
 
-            reasoner.ActiveRules.Add(1);
+            reasoner.InputRules.Add(1);
             reasoner.NextLogicStep();
             var confirmRuleSets = reasoner.GetConfirmRuleSets();
 
@@ -343,7 +376,7 @@ namespace DiscreteApproach
         [Fact]
         public void ApplyTruthBasis_ShouldRecognize0Sequence()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -369,7 +402,7 @@ namespace DiscreteApproach
         [Fact]
         public void GetConfirmRuleSets2_()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
@@ -380,7 +413,7 @@ namespace DiscreteApproach
 
             var reasoner = new Reasoner(rules);
 
-            reasoner.ActiveRules = new[] { 3, 4, 5, 6 }.ToList();
+            reasoner.OutputRules = new[] { 3, 4, 5, 6 }.ToList();
             reasoner.ExecutedRules = new[] { 5, 6, 8, 9 }.ToList();
 
             var confirmRuleSets = reasoner.GetConfirmRuleSets2();
@@ -393,7 +426,7 @@ namespace DiscreteApproach
         [Fact]
         public void GetConfirmRuleSets2_ShouldCalcEffectResults()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0.2}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0.2}, 
@@ -404,7 +437,7 @@ namespace DiscreteApproach
 
             var reasoner = new Reasoner(rules);
 
-            reasoner.ActiveRules = new[] { 3, 4, 5, 6 }.ToList();
+            reasoner.OutputRules = new[] { 3, 4, 5, 6 }.ToList();
             reasoner.ExecutedRules = new[] { 5, 6, 7, 8, 9 }.ToList();
 
             double[] effectResults = reasoner.CalcEffectResults();

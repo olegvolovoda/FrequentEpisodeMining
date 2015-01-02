@@ -34,7 +34,7 @@ namespace DiscreteApproach
 
             foreach (var item in chain)
             {
-                result = Perceive(item.ToString());
+                result += Perceive(item.ToString());
             }
 
             return result;
@@ -46,7 +46,7 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldRecognize010Sequence()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -67,7 +67,7 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldRecognize0101Sequence()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -89,7 +89,7 @@ namespace DiscreteApproach
         [Fact]
         public void PerceiveChain_ShouldRecognize010100Sequence()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -104,13 +104,13 @@ namespace DiscreteApproach
 
             var reaction = binaryBrain.PerceiveChain("010100");
 
-            Assert.Equal("D", reaction);
+            Assert.Equal('D', reaction.Last());
         }
 
         [Fact]
         public void PerceiveChain_ShouldRecognize000010Sequence()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -125,13 +125,13 @@ namespace DiscreteApproach
 
             var reaction = binaryBrain.PerceiveChain("000010");
 
-            Assert.Equal("U", reaction);
+            Assert.Equal('U', reaction.Last());
         }
 
         [Fact]
         public void PerceiveChain_ShouldRecognize01SequenceAlternative()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4}, 
@@ -146,13 +146,13 @@ namespace DiscreteApproach
 
             var reaction = binaryBrain.PerceiveChain("01");
 
-            Assert.Equal("D", reaction);
+            Assert.Equal('D', reaction.Last());
         }
 
         [Fact]
         public void Perceive_ShouldRecognize0As00Sequence()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0.1}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
@@ -173,7 +173,7 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldLearn0Sequence()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
@@ -193,7 +193,7 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldLearn01Sequence()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
@@ -221,7 +221,7 @@ namespace DiscreteApproach
         [Fact]
         public void Perceive_ShouldLearn01And0Sequences()
         {
-            var rules = new Rule[]
+            var rules = new List<Rule>
                 {
                     new Rule(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
                     new Rule(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
@@ -237,7 +237,74 @@ namespace DiscreteApproach
 
             var reaction = binaryBrain.PerceiveChain("000000101010101000001010100");
 
-            Assert.Equal("D", reaction);
+            Assert.Equal('D', reaction.Last());
+        }
+
+        [Fact]
+        public void Perceive_ShouldLearn0SequenceFromScratch()
+        {
+            var rules = new List<Rule>();
+
+            var reasoner = new Reasoner(rules);
+
+            var binaryBrain = new BinaryBrain(reasoner);
+
+            var reaction = binaryBrain.PerceiveChain("0000");
+
+            Assert.Equal('D', reaction.Last());
+        }
+
+        [Fact]
+        public void Perceive_ShouldLearn0And01SequencesFromScratch()
+        {
+            var rules = new List<Rule>();
+
+            var reasoner = new Reasoner(rules);
+
+            var binaryBrain = new BinaryBrain(reasoner);
+
+            var reaction = binaryBrain.PerceiveChain("0000000010101010101010100000000010101010000010");
+
+            Assert.Equal('U', reaction.Last());
+
+            reaction = binaryBrain.PerceiveChain("000");
+
+            Assert.Equal('D', reaction.Last());
+        }
+
+        [Fact]
+        public void Perceive_ShouldLearn110SequencesFromScratch()
+        {
+            var rules = new List<Rule>();
+
+            var reasoner = new Reasoner(rules);
+
+            var binaryBrain = new BinaryBrain(reasoner);
+
+            binaryBrain.PerceiveChain("110110110110110110110110110110110110110");
+            var reaction = binaryBrain.PerceiveChain("110");
+
+            Assert.Equal("UDU", reaction);
+        }
+
+        [Fact]
+        public void Perceive_ShouldLearn110And1110SequencesFromScratch()
+        {
+            var rules = new List<Rule>();
+
+            var reasoner = new Reasoner(rules);
+
+            var binaryBrain = new BinaryBrain(reasoner);
+
+            binaryBrain.PerceiveChain("1110".Repeat(10));
+            binaryBrain.PerceiveChain("110".Repeat(10));
+            binaryBrain.PerceiveChain("1110".Repeat(10));
+            binaryBrain.PerceiveChain("110".Repeat(10));
+            var reaction = binaryBrain.PerceiveChain("110");
+            Assert.Equal("UDU", reaction);
+            binaryBrain.PerceiveChain("1110".Repeat(3));
+            reaction = binaryBrain.PerceiveChain("1110");
+            Assert.Equal("UUDU", reaction);
         }
     }
 }
