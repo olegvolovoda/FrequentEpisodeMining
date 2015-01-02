@@ -33,11 +33,23 @@ namespace DiscreteApproach
             return _ruleInfos.FirstOrDefault(rule => rule.Name == ruleName);
         }
 
-        public bool RuleIsNotDuplicateEdge(int inputRule, int confirmedOutput)
+        public bool IsRuleIsDuplicateEdge(int inputRule, int confirmedOutput)
         {
             return !_ruleInfos.Any(rule => rule.Cause == inputRule && rule.Result == confirmedOutput)
                    && !_ruleInfos.Any(rule => rule.Cause == inputRule && rule.Name == confirmedOutput)
                    && !_ruleInfos.Any(rule => rule.Name == inputRule && rule.Result == confirmedOutput);
+        }
+
+        public int GetRuleHeight(int rule)
+        {
+            int height = 1;
+            while (rule > 4)
+            {
+                rule = GetRuleByName(rule).Cause;
+                height++;
+            }
+
+            return height;
         }
     }
 }

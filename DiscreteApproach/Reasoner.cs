@@ -114,7 +114,7 @@ namespace DiscreteApproach
             {
                 prefferedOutput = effectResult[0] > effectResult[1] ? 3 : 4;
             }
-            AlignWeights(truthOutput, confirmRuleSets, prefferedOutput);
+            AlignWeightsAndCreateRules(truthOutput, confirmRuleSets, prefferedOutput);
 
             newExecutedRules.AddRange(confirmRuleSets[truthOutput - FirstBasisOutputRule].Select(rule => rule.Name));
             newExecutedRules.Sort();
@@ -122,7 +122,7 @@ namespace DiscreteApproach
 
         }
 
-        public void AlignWeights(int truthOutput, RuleInfo[][] confirmedRuleSets, int prefferedOutput)
+        public void AlignWeightsAndCreateRules(int truthOutput, RuleInfo[][] confirmedRuleSets, int prefferedOutput)
         {
 
             if (prefferedOutput == truthOutput || prefferedOutput == 0)
@@ -156,14 +156,19 @@ namespace DiscreteApproach
                 {
                     foreach (var inputRule in inputRules)
                     {
-                        if (_rulesRepo.RuleIsNotDuplicateEdge(inputRule, confirmedOutput))
+                        if (_rulesRepo.IsRuleIsDuplicateEdge(inputRule, confirmedOutput))
                         {
-                            var newRule = new RuleInfo
-                                {
-                                    Cause = inputRule, Result = confirmedOutput, Weight = 0.2
-                                };
+                            if (_rulesRepo.GetRuleHeight(inputRule) == _rulesRepo.GetRuleHeight(confirmedOutput))
+                            {
+                                var newRule = new RuleInfo
+                                    {
+                                        Cause = inputRule,
+                                        Result = confirmedOutput,
+                                        Weight = 0.2
+                                    };
 
-                            _rulesRepo.AddRule(newRule);
+                                _rulesRepo.AddRule(newRule);
+                            }
                         }
                     }
                 }
