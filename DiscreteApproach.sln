@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscreteApproach", "DiscreteApproach\DiscreteApproach.csproj", "{39743FDF-ED50-48A0-BFEA-F5C4611E0162}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Console\Console.csproj", "{A86DCF0B-AFED-47B1-97AF-960003D1F2E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{474B8B67-F31E-4DB7-B1E1-30B04A295762}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +17,14 @@ Global
 		{39743FDF-ED50-48A0-BFEA-F5C4611E0162}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39743FDF-ED50-48A0-BFEA-F5C4611E0162}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39743FDF-ED50-48A0-BFEA-F5C4611E0162}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A86DCF0B-AFED-47B1-97AF-960003D1F2E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A86DCF0B-AFED-47B1-97AF-960003D1F2E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A86DCF0B-AFED-47B1-97AF-960003D1F2E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A86DCF0B-AFED-47B1-97AF-960003D1F2E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{474B8B67-F31E-4DB7-B1E1-30B04A295762}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{474B8B67-F31E-4DB7-B1E1-30B04A295762}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{474B8B67-F31E-4DB7-B1E1-30B04A295762}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{474B8B67-F31E-4DB7-B1E1-30B04A295762}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

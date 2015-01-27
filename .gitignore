@@ -6,3 +6,15 @@ bin
 /DiscreteApproach.v2.ncrunchsolution
 
 /DiscreteApproach.ncrunchsolution.user
+/Console/obj
+
+/Tests/obj
+
+/TestResults
+
+/Tests/*.ncrunchproject
+/Console/*.ncrunchproject
+
+/DiscreteApproach/*.ncrunchproject
+/*.user
+/_NCrunch_DiscreteApproach/*.cache
