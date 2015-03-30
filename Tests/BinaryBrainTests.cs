@@ -15,10 +15,10 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
             {
-                new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
-                new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
-                new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
-                new RuleInfo(){Name = 8, Cause = 7, Result = 6},
+                new RuleInfo(){Index = 5, Cause = 1, Result = 3}, 
+                new RuleInfo(){Index = 6, Cause = 1, Result = 4}, 
+                new RuleInfo(){Index = 7, Cause = 2, Result = 3}, 
+                new RuleInfo(){Index = 8, Cause = 7, Result = 6},
             };
 
             var reasoner = new Reasoner(rules);
@@ -50,56 +50,14 @@ namespace Tests
         }
 
         [Fact]
-        public void PerceiveChain_ShouldRecognize010100Sequence()
-        {
-            var rules = new List<RuleInfo>
-            {
-                //new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
-                //new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
-                //new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
-                //new RuleInfo(){Name = 8, Cause = 7, Result = 6},
-                //new RuleInfo(){Name = 9, Cause = 5, Result = 5},
-            };
-
-            var reasoner = new Reasoner(rules);
-
-            var binaryBrain = new BinaryBrain(reasoner);
-
-            var reaction = binaryBrain.PerceiveChain("010100");
-
-            Assert.Equal('D', reaction.Last());
-        }
-
-        [Fact]
-        public void PerceiveChain_ShouldRecognize000010Sequence()
-        {
-            var rules = new List<RuleInfo>
-            {
-                //new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
-                //new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
-                //new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
-                //new RuleInfo(){Name = 8, Cause = 7, Result = 6},
-                //new RuleInfo(){Name = 9, Cause = 5, Result = 5},
-            };
-
-            var reasoner = new Reasoner(rules);
-
-            var binaryBrain = new BinaryBrain(reasoner);
-
-            var reaction = binaryBrain.PerceiveChain("000010");
-
-            Assert.Equal('U', reaction.Last());
-        }
-
-        [Fact]
         public void PerceiveChain_ShouldRecognize01SequenceAlternative()
         {
             var rules = new List<RuleInfo>
             {
-                new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
-                new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
-                new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
-                new RuleInfo(){Name = 8, Cause = 7, Result = 4},
+                new RuleInfo(){Index = 5, Cause = 1, Result = 3}, 
+                new RuleInfo(){Index = 6, Cause = 1, Result = 4}, 
+                new RuleInfo(){Index = 7, Cause = 2, Result = 3}, 
+                new RuleInfo(){Index = 8, Cause = 7, Result = 4},
                     
             };
 
@@ -117,11 +75,11 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
             {
-                new RuleInfo(){Name = 5, Cause = 1, Result = 3, Weight = 0.5}, 
-                new RuleInfo(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
-                new RuleInfo(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
-                new RuleInfo(){Name = 8, Cause = 7, Result = 6, Weight = 0},
-                new RuleInfo(){Name = 9, Cause = 5, Result = 5, Weight = 0},
+                new RuleInfo(){Index = 5, Cause = 1, Result = 3, Weight = 0.5}, 
+                new RuleInfo(){Index = 6, Cause = 1, Result = 4, Weight = 0}, 
+                new RuleInfo(){Index = 7, Cause = 2, Result = 3, Weight = 0}, 
+                new RuleInfo(){Index = 8, Cause = 7, Result = 6, Weight = 0},
+                new RuleInfo(){Index = 9, Cause = 5, Result = 5, Weight = 0},
             };
 
             var reasoner = new Reasoner(rules);
@@ -153,10 +111,10 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
             {
-                new RuleInfo(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
-                new RuleInfo(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
-                new RuleInfo(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
-                new RuleInfo(){Name = 8, Cause = 2, Result = 4, Weight = 0},
+                new RuleInfo(){Index = 5, Cause = 1, Result = 3, Weight = 0}, 
+                new RuleInfo(){Index = 6, Cause = 1, Result = 4, Weight = 0}, 
+                new RuleInfo(){Index = 7, Cause = 2, Result = 3, Weight = 0}, 
+                new RuleInfo(){Index = 8, Cause = 2, Result = 4, Weight = 0},
             };
 
             var reasoner = new Reasoner(rules);
@@ -181,12 +139,12 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
             {
-                new RuleInfo(){Name = 5, Cause = 1, Result = 3, Weight = 0.5}, 
-                new RuleInfo(){Name = 6, Cause = 1, Result = 4, Weight = 0.5}, 
-                new RuleInfo(){Name = 7, Cause = 2, Result = 3, Weight = 0.5}, 
-                new RuleInfo(){Name = 8, Cause = 2, Result = 4, Weight = 0.5},
-                new RuleInfo(){Name = 9, Cause = 7, Result = 6, Weight = 0.5},
-                new RuleInfo(){Name = 10, Cause = 5, Result = 5, Weight = 0.5},
+                new RuleInfo(){Index = 5, Cause = 1, Result = 3, Weight = 0.5}, 
+                new RuleInfo(){Index = 6, Cause = 1, Result = 4, Weight = 0.5}, 
+                new RuleInfo(){Index = 7, Cause = 2, Result = 3, Weight = 0.5}, 
+                new RuleInfo(){Index = 8, Cause = 2, Result = 4, Weight = 0.5},
+                new RuleInfo(){Index = 9, Cause = 7, Result = 6, Weight = 0.5},
+                new RuleInfo(){Index = 10, Cause = 5, Result = 5, Weight = 0.5},
             };
 
             var reasoner = new Reasoner(rules);

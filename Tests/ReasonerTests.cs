@@ -13,16 +13,16 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
                 {
-                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Index = 5, Cause = 1, Result = 3}, 
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.InputRules = new int[] { 1 }.ToList();
+            reasoner._rulesRepo.InputRules = new int[] { 1 }.ToList();
 
             reasoner.NextLogicStep();
 
-            Assert.Equal(new int[] { 3 }, reasoner.OutputRules);
-            Assert.Equal(new int[] { 5 }, reasoner.ExecutedRules);
+            Assert.Equal(new int[] { 3 }, reasoner._rulesRepo.OutputRules);
+            Assert.Equal(new int[] { 5 }, reasoner._rulesRepo.ExecutedRules);
         }
 
         [Fact]
@@ -30,19 +30,19 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
                 {
-                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
-                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
-                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
-                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Index = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Index = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Index = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Index = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
 
-            reasoner.InputRules = new int[] { 1, 7 }.ToList();
+            reasoner._rulesRepo.InputRules = new int[] { 1, 7 }.ToList();
             reasoner.NextLogicStep();
 
-            Assert.Equal(new int[] { 3, 4, 6 }, reasoner.OutputRules);
-            Assert.Equal(new int[] { 5, 6, 8 }, reasoner.ExecutedRules);
+            Assert.Equal(new int[] { 3, 4, 6 }, reasoner._rulesRepo.OutputRules);
+            Assert.Equal(new int[] { 5, 6, 8 }, reasoner._rulesRepo.ExecutedRules);
         }
 
         [Fact]
@@ -50,17 +50,17 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
                 {
-                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
-                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
-                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
-                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Index = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Index = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Index = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Index = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.OutputRules = new[] { 3, 6 }.ToList();
-            reasoner.ExecutedRules = new[] { 5, 8 }.ToList();
+            reasoner._rulesRepo.OutputRules = new[] { 3, 6 }.ToList();
+            reasoner._rulesRepo.ExecutedRules = new[] { 5, 8 }.ToList();
 
-            var basisConsequences = reasoner.GetConfirmRuleSets();
+            var basisConsequences = reasoner._rulesRepo.GetConfirmRuleSets();
 
             Assert.Equal(1, basisConsequences[0].Count());
             Assert.Equal(0, basisConsequences[1].Count());
@@ -71,17 +71,17 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
                 {
-                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
-                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
-                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
-                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Index = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Index = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Index = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Index = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.OutputRules = new[] { 3, 6, 4 }.ToList();
-            reasoner.ExecutedRules = new[] { 5, 8, 6 }.ToList();
+            reasoner._rulesRepo.OutputRules = new[] { 3, 6, 4 }.ToList();
+            reasoner._rulesRepo.ExecutedRules = new[] { 5, 8, 6 }.ToList();
 
-            var basisConsequences = reasoner.GetConfirmRuleSets();
+            var basisConsequences = reasoner._rulesRepo.GetConfirmRuleSets();
 
             Assert.Equal(1, basisConsequences[0].Count());
             Assert.Equal(2, basisConsequences[1].Count());
@@ -92,18 +92,18 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
                 {
-                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
-                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
-                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
-                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
-                    new RuleInfo(){Name = 9, Cause = 5, Result = 5},
+                    new RuleInfo(){Index = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Index = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Index = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Index = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Index = 9, Cause = 5, Result = 5},
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.OutputRules = new[] { 5, 3, 6, 4 }.ToList();
-            reasoner.ExecutedRules = new[] { 9, 5, 8, 6 }.ToList();
+            reasoner._rulesRepo.OutputRules = new[] { 5, 3, 6, 4 }.ToList();
+            reasoner._rulesRepo.ExecutedRules = new[] { 9, 5, 8, 6 }.ToList();
 
-            var relatedToBasisActiveRules = reasoner.GetConfirmRuleSets();
+            var relatedToBasisActiveRules = reasoner._rulesRepo.GetConfirmRuleSets();
 
             Assert.Equal(new int[] { 3, 5 }, relatedToBasisActiveRules[0]);
             Assert.Equal(new int[] { 4, 6 }, relatedToBasisActiveRules[1]);
@@ -114,20 +114,20 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
                 {
-                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
-                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
-                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
-                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Index = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Index = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Index = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Index = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.OutputRules = new[] { 7, 5, 3, 6, 4 }.ToList();
-            reasoner.ExecutedRules = new[] { 5, 6, 8 }.ToList();
+            reasoner._rulesRepo.OutputRules = new[] { 7, 5, 3, 6, 4 }.ToList();
+            reasoner._rulesRepo.ExecutedRules = new[] { 5, 6, 8 }.ToList();
 
             reasoner.ApplyTruthRule(4);
 
-            Assert.Equal(new[] { 7, 5, 3, 6, 4 }, reasoner.OutputRules);
-            Assert.Equal(new[] { 6, 8 }, reasoner.ExecutedRules);
+            Assert.Equal(new[] { 7, 5, 3, 6, 4 }, reasoner._rulesRepo.OutputRules);
+            Assert.Equal(new[] { 6, 8 }, reasoner._rulesRepo.ExecutedRules);
         }
 
         [Fact]
@@ -135,20 +135,20 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
                 {
-                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
-                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
-                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
-                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Index = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Index = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Index = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Index = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
-            reasoner.InputRules = new[] { 7, 5, 3, 6, 4 }.ToList();
-            reasoner.ExecutedRules = new[] { 5, 6, 8 }.ToList();
+            reasoner._rulesRepo.InputRules = new[] { 7, 5, 3, 6, 4 }.ToList();
+            reasoner._rulesRepo.ExecutedRules = new[] { 5, 6, 8 }.ToList();
 
             reasoner.InitNextGeneration();
 
-            Assert.Equal(new[] { 5, 6, 8 }, reasoner.InputRules);
-            Assert.Equal(new int[] { }, reasoner.ExecutedRules);
+            Assert.Equal(new[] { 5, 6, 8 }, reasoner._rulesRepo.InputRules);
+            Assert.Equal(new int[] { }, reasoner._rulesRepo.ExecutedRules);
         }
 
         [Fact]
@@ -156,10 +156,10 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
                 {
-                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
-                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
-                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
-                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Index = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Index = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Index = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Index = 8, Cause = 7, Result = 6},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -169,9 +169,9 @@ namespace Tests
             reasoner.ApplyTruthRule(3);
             reasoner.InitNextGeneration();
 
-            reasoner.InputRules.Add(1);
+            reasoner._rulesRepo.InputRules.Add(1);
             reasoner.NextLogicStep();
-            var confirmRuleSets = reasoner.GetConfirmRuleSets();
+            var confirmRuleSets = reasoner._rulesRepo.GetConfirmRuleSets();
 
             Assert.Equal(new int[] { 3 }, confirmRuleSets[0]);
             Assert.Equal(new int[] { 4, 6 }, confirmRuleSets[1]);
@@ -182,11 +182,11 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
                 {
-                    new RuleInfo(){Name = 5, Cause = 1, Result = 3}, 
-                    new RuleInfo(){Name = 6, Cause = 1, Result = 4}, 
-                    new RuleInfo(){Name = 7, Cause = 2, Result = 3}, 
-                    new RuleInfo(){Name = 8, Cause = 7, Result = 6},
-                    new RuleInfo(){Name = 9, Cause = 5, Result = 5},
+                    new RuleInfo(){Index = 5, Cause = 1, Result = 3}, 
+                    new RuleInfo(){Index = 6, Cause = 1, Result = 4}, 
+                    new RuleInfo(){Index = 7, Cause = 2, Result = 3}, 
+                    new RuleInfo(){Index = 8, Cause = 7, Result = 6},
+                    new RuleInfo(){Index = 9, Cause = 5, Result = 5},
                 };
 
             var reasoner = new Reasoner(rules);
@@ -197,7 +197,7 @@ namespace Tests
 
             reasoner.AddSensorInfo(1);
             reasoner.NextLogicStep();
-            var confirmRuleSets = reasoner.GetConfirmRuleSets();
+            var confirmRuleSets = reasoner._rulesRepo.GetConfirmRuleSets();
 
             Assert.Equal(new int[] { 3, 5 }, confirmRuleSets[0]);
             Assert.Equal(new int[] { 4 }, confirmRuleSets[1]);
@@ -208,23 +208,23 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
                 {
-                    new RuleInfo(){Name = 5, Cause = 1, Result = 3, Weight = 0}, 
-                    new RuleInfo(){Name = 6, Cause = 1, Result = 4, Weight = 0}, 
-                    new RuleInfo(){Name = 7, Cause = 2, Result = 3, Weight = 0}, 
-                    new RuleInfo(){Name = 8, Cause = 7, Result = 6, Weight = 1},
-                    new RuleInfo(){Name = 9, Cause = 5, Result = 5, Weight = 1},
+                    new RuleInfo(){Index = 5, Cause = 1, Result = 3, Weight = 0}, 
+                    new RuleInfo(){Index = 6, Cause = 1, Result = 4, Weight = 0}, 
+                    new RuleInfo(){Index = 7, Cause = 2, Result = 3, Weight = 0}, 
+                    new RuleInfo(){Index = 8, Cause = 7, Result = 6, Weight = 1},
+                    new RuleInfo(){Index = 9, Cause = 5, Result = 5, Weight = 1},
                 };
 
             var reasoner = new Reasoner(rules);
 
-            reasoner.OutputRules = new[] { 3, 4, 5, 6 }.ToList();
-            reasoner.ExecutedRules = new[] { 5, 6, 8, 9 }.ToList();
+            reasoner._rulesRepo.OutputRules = new[] { 3, 4, 5, 6 }.ToList();
+            reasoner._rulesRepo.ExecutedRules = new[] { 5, 6, 8, 9 }.ToList();
 
-            var confirmRuleSets = reasoner.GetConfirmRuleSets2();
+            var confirmRuleSets = reasoner._rulesRepo.GetConfirmRuleSets2();
 
-            Assert.Equal(5, confirmRuleSets[0][0].Name);
-            Assert.Equal(9, confirmRuleSets[0][1].Name);
-            Assert.Equal(6, confirmRuleSets[1][0].Name);
+            Assert.Equal(5, confirmRuleSets[0][0].Index);
+            Assert.Equal(9, confirmRuleSets[0][1].Index);
+            Assert.Equal(6, confirmRuleSets[1][0].Index);
         }
 
         [Fact]
@@ -232,22 +232,22 @@ namespace Tests
         {
             var rules = new List<RuleInfo>
                 {
-                    new RuleInfo(){Name = 5, Cause = 1, Result = 3, Weight = 0.2}, 
-                    new RuleInfo(){Name = 6, Cause = 1, Result = 4, Weight = 0.2}, 
-                    new RuleInfo(){Name = 7, Cause = 2, Result = 3, Weight = 0.2}, 
-                    new RuleInfo(){Name = 8, Cause = 7, Result = 6, Weight = 1},
-                    new RuleInfo(){Name = 9, Cause = 5, Result = 5, Weight = 1},
+                    new RuleInfo(){Index = 5, Cause = 1, Result = 3, Weight = 0.2}, 
+                    new RuleInfo(){Index = 6, Cause = 1, Result = 4, Weight = 0.2}, 
+                    new RuleInfo(){Index = 7, Cause = 2, Result = 3, Weight = 0.2}, 
+                    new RuleInfo(){Index = 8, Cause = 7, Result = 6, Weight = 1},
+                    new RuleInfo(){Index = 9, Cause = 5, Result = 5, Weight = 1},
                 };
 
             var reasoner = new Reasoner(rules);
 
-            reasoner.OutputRules = new[] { 3, 4, 5, 6 }.ToList();
-            reasoner.ExecutedRules = new[] { 5, 6, 7, 8, 9 }.ToList();
+            reasoner._rulesRepo.OutputRules = new[] { 3, 4, 5, 6 }.ToList();
+            reasoner._rulesRepo.ExecutedRules = new[] { 5, 6, 7, 8, 9 }.ToList();
 
-            double[] effectResults = reasoner.CalcEffectResults();
+            bool[] effectResults = reasoner.CalcEffectResults();
 
-            Assert.Equal(1, effectResults[0]);
-            Assert.Equal(1, effectResults[1]);
+            Assert.Equal(false, effectResults[0]);
+            Assert.Equal(false, effectResults[1]);
         }
     }
 
