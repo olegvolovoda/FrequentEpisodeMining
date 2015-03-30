@@ -44,6 +44,8 @@
   <ItemGroup>
     <Compile Include="BinaryBrain.cs" />
     <Compile Include="Evaluator.cs" />
+    <Compile Include="IEvaluator.cs" />
+    <Compile Include="IRulesRepo.cs" />
     <Compile Include="Learner.cs" />
     <Compile Include="Reasoner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

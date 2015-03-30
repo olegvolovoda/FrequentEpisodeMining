@@ -5,9 +5,9 @@ namespace DiscreteApproach
 {
     public class RuleExecutor
     {
-        private RulesRepo _rulesRepo;
+        private IRulesRepo _rulesRepo;
 
-        public RuleExecutor(RulesRepo rulesRepo)
+        public RuleExecutor(IRulesRepo rulesRepo)
         {
             _rulesRepo = rulesRepo;
         }

@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace DiscreteApproach
 {
-    public class Evaluator
+    public class Evaluator : IEvaluator
     {
-        private RulesRepo _rulesRepo;
+        private IRulesRepo _rulesRepo;
 
-        public Evaluator(RulesRepo rulesRepo)
+        public Evaluator(IRulesRepo rulesRepo)
         {
             _rulesRepo = rulesRepo;
         }

@@ -6,10 +6,10 @@ namespace DiscreteApproach
 {
     public class Learner
     {
-        private RulesRepo _rulesRepo;
-        private Evaluator _evaluator;
+        private IRulesRepo _rulesRepo;
+        private IEvaluator _evaluator;
 
-        public Learner(RulesRepo rulesRepo, Evaluator evaluator)
+        public Learner(IRulesRepo rulesRepo, IEvaluator evaluator)
         {
             _rulesRepo = rulesRepo;
             _evaluator = evaluator;

@@ -6,8 +6,8 @@ namespace DiscreteApproach
 {
     public class Reasoner
     {
-        public readonly RulesRepo _rulesRepo;
-        private Evaluator _evaluator;
+        public readonly IRulesRepo _rulesRepo;
+        private IEvaluator _evaluator;
 
         public Reasoner(List<RuleInfo> ruleInfos)
         {

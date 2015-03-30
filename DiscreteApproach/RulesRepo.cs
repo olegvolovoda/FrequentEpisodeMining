@@ -3,14 +3,14 @@ using System.Linq;
 
 namespace DiscreteApproach
 {
-    public class RulesRepo
+    public class RulesRepo : IRulesRepo
     {
         private List<int> inputRules;
         private List<int> outputRules = new List<int>();
         private List<int> executedRules;
 
-        public int[] BasicOutputRules = new[] { 3, 4 };
-        public int FirstBasisOutputRule = 3;
+        private int[] _basicOutputRules = new[] { 3, 4 };
+        private int _firstBasisOutputRule = 3;
         
         private List<RuleInfo> _ruleInfos;
 
@@ -30,6 +30,18 @@ namespace DiscreteApproach
         {
             get { return executedRules; }
             set { executedRules = value; }
+        }
+
+        public int[] BasicOutputRules
+        {
+            get { return _basicOutputRules; }
+            set { _basicOutputRules = value; }
+        }
+
+        public int FirstBasisOutputRule
+        {
+            get { return _firstBasisOutputRule; }
+            set { _firstBasisOutputRule = value; }
         }
 
         public RulesRepo(List<RuleInfo> ruleInfos)
@@ -100,9 +112,9 @@ namespace DiscreteApproach
         {
             var relatedToBasisActiveRulesLists = new List<RuleInfo>[2];
 
-            foreach (var basicRule in BasicOutputRules)
+            foreach (var basicRule in _basicOutputRules)
             {
-                relatedToBasisActiveRulesLists[basicRule - FirstBasisOutputRule] = GetAllExecutedRulesBasedOnResult(basicRule);
+                relatedToBasisActiveRulesLists[basicRule - _firstBasisOutputRule] = GetAllExecutedRulesBasedOnResult(basicRule);
             }
 
             return relatedToBasisActiveRulesLists.Select(list => list.ToArray()).ToArray();
