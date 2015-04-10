@@ -4,8 +4,8 @@ namespace DiscreteApproach
 {
     public interface IRulesRepo
     {
-        List<int> InputRules { get; set; }
-        List<int> OutputRules { get; set; }
+        List<int> ActiveRules { get; set; }
+        List<int> PostActiveRules { get; set; }
         List<int> ExecutedRules { get; set; }
         int[] BasicOutputRules { get; set; }
         int FirstBasisOutputRule { get; set; }
@@ -18,5 +18,7 @@ namespace DiscreteApproach
         List<RuleInfo> GetAllExecutedRulesBasedOnResult(int basicRule);
         int[][] GetConfirmRuleSets();
         RuleInfo[][] GetConfirmRuleSets2();
+        string GetSequence(int rule);
+        string[] GetAllSequences();
     }
 }

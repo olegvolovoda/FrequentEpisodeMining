@@ -21,5 +21,17 @@ namespace DiscreteApproach
 
             return string.Empty;
         }
+
+        public static int IndexMax<T>(this IEnumerable<T> list, Func<T, double> func)
+        {
+            int indexMax = !list.Any()
+                               ? -1
+                               : list
+                                     .Select((value, index) => new { Value = func(value), Index = index })
+                                     .Aggregate((a, b) => (a.Value > b.Value) ? a : b)
+                                     .Index;
+            return indexMax;
+        }
+
     }
 }

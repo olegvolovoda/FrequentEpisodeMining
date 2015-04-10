@@ -15,7 +15,7 @@ namespace DiscreteApproach
             _evaluator = evaluator;
         }
 
-        public void AjustByOutput(int truthOutput)
+        public void AjustByOutput(int truthOutput, bool learn = true)
         {
             var newExecutedRules = new List<int>();
             var confirmRuleSets = _rulesRepo.GetConfirmRuleSets2();
@@ -27,7 +27,11 @@ namespace DiscreteApproach
             {
                 prefferedOutput = effectResult[0] ? 3 : 4;
             }
-            AlignWeightsAndCreateRules(truthOutput, confirmRuleSets, prefferedOutput);
+
+            if (learn)
+            {
+                AlignWeightsAndCreateRules(truthOutput, confirmRuleSets, prefferedOutput);
+            }
 
             newExecutedRules.AddRange(confirmRuleSets[truthOutput - _rulesRepo.FirstBasisOutputRule].Select(rule => rule.Index));
             newExecutedRules.Sort();
@@ -39,15 +43,21 @@ namespace DiscreteApproach
 
             if (prefferedOutput == truthOutput || prefferedOutput == 0)
             {
-                foreach (var confirmedRule in confirmedRuleSets[truthOutput - _rulesRepo.FirstBasisOutputRule])
+                var succededRules = confirmedRuleSets[truthOutput - _rulesRepo.FirstBasisOutputRule];
+                var highestRuleIndex = succededRules.IndexMax(rule => rule.Height);
+                if (highestRuleIndex != -1)
                 {
-                    var r = _rulesRepo.GetRuleByName(confirmedRule.Index);
-                    if (r != null)
-                    {
-                        r.Weight += 0.2;
-                        r.Weight = Math.Min(1, r.Weight);
-                    }
+                    succededRules[highestRuleIndex].AdmitSuccess();
                 }
+
+                //foreach (var confirmedRule in succededRules)
+                //{
+                //    var r = _rulesRepo.GetRuleByName(confirmedRule.Index);
+                //    if (r != null)
+                //    {
+                //        r.AdmitSuccess();
+                //    }
+                //}
             }
             else
             {
@@ -56,8 +66,7 @@ namespace DiscreteApproach
                     var r = _rulesRepo.GetRuleByName(confirmedRule.Index);
                     if (r != null)
                     {
-                        r.Weight -= 0.2;
-                        r.Weight = Math.Max(0, r.Weight);
+                        r.AdmitFailure();
                     }
                 }
             }
@@ -66,20 +75,24 @@ namespace DiscreteApproach
             {
                 foreach (var confirmedOutput in confirmedRuleSets[truthOutput - _rulesRepo.FirstBasisOutputRule].Select(rule => rule.Index).Union(new int[] { truthOutput }))
                 {
-                    foreach (var inputRule in _rulesRepo.InputRules)
+                    foreach (var inputRule in _rulesRepo.ActiveRules)
                     {
                         if (_rulesRepo.IsRuleIsDuplicateEdge(inputRule, confirmedOutput))
                         {
-                            if (_rulesRepo.GetRuleHeight(inputRule) == _rulesRepo.GetRuleHeight(confirmedOutput))
+                            if ((inputRule < 3 || _rulesRepo.GetRuleByName(inputRule).Weight > 0) 
+                                && (confirmedOutput < 5 || _rulesRepo.GetRuleByName(confirmedOutput).Weight > 0) 
+                                && _rulesRepo.GetRuleHeight(inputRule) == _rulesRepo.GetRuleHeight(confirmedOutput))
                             {
                                 var newRule = new RuleInfo
                                 {
                                     Cause = inputRule,
                                     Result = confirmedOutput,
-                                    Weight = 0.2
+                                    Total = 0,
+                                    Successes = 0
                                 };
 
                                 _rulesRepo.AddRule(newRule);
+                                newRule.Height = _rulesRepo.GetRuleHeight(newRule.Index);
                             }
                         }
                     }

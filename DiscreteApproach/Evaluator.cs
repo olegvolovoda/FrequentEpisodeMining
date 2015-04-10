@@ -20,12 +20,8 @@ namespace DiscreteApproach
             var confirmingRules = _rulesRepo.GetConfirmRuleSets2().Select(rules => rules.Sum(rule => rule.Weight)).ToArray();
             var result = new bool[confirmingRules.Count()];
 
-            var threshold = 0;
-            int indexMax = !confirmingRules.Any() ? -1 :
-                confirmingRules
-                .Select((value, index) => new { Value = value, Index = index })
-                .Aggregate((a, b) => (a.Value > b.Value) ? a : b)
-                .Index;
+            var threshold = 0.2;
+            var indexMax = confirmingRules.IndexMax(count => count);
 
             if (confirmingRules.Count(rulesCount => confirmingRules[indexMax] <= rulesCount + threshold) == 1)
             {

@@ -5,25 +5,29 @@ namespace DiscreteApproach
 {
     public class RulesRepo : IRulesRepo
     {
-        private List<int> inputRules;
-        private List<int> outputRules = new List<int>();
+        private List<int> _activeRules;
+        private List<int> _postActiveRules = new List<int>();
         private List<int> executedRules;
 
-        private int[] _basicOutputRules = new[] { 3, 4 };
-        private int _firstBasisOutputRule = 3;
+        private int[] _outputRules = new[] { 3, 4 };
+        private int _firstOutputRule = 3;
+        private int _outputRulesCount = 2;
+
+        private int _firstInputRule = 1;
+        private int _inputRulesCount = 2;
         
         private List<RuleInfo> _ruleInfos;
 
-        public List<int> InputRules
+        public List<int> ActiveRules
         {
-            get { return inputRules; }
-            set { inputRules = value; }
+            get { return _activeRules; }
+            set { _activeRules = value; }
         }
 
-        public List<int> OutputRules
+        public List<int> PostActiveRules
         {
-            get { return outputRules; }
-            set { outputRules = value; }
+            get { return _postActiveRules; }
+            set { _postActiveRules = value; }
         }
 
         public List<int> ExecutedRules
@@ -32,16 +36,34 @@ namespace DiscreteApproach
             set { executedRules = value; }
         }
 
-        public int[] BasicOutputRules
+        public int[] OutputRules
         {
-            get { return _basicOutputRules; }
-            set { _basicOutputRules = value; }
+            get { return _outputRules; }
+            set { _outputRules = value; }
         }
 
-        public int FirstBasisOutputRule
+        public int FirstOutputRule
         {
-            get { return _firstBasisOutputRule; }
-            set { _firstBasisOutputRule = value; }
+            get { return _firstOutputRule; }
+            set { _firstOutputRule = value; }
+        }
+
+        public int OutputRulesCount
+        {
+            get { return _outputRulesCount; }
+            set { _outputRulesCount = value; }
+        }
+
+        public int FirstInputRule
+        {
+            get { return _firstInputRule; }
+            set { _firstInputRule = value; }
+        }
+
+        public int InputRulesCount
+        {
+            get { return _inputRulesCount; }
+            set { _inputRulesCount = value; }
         }
 
         public RulesRepo(List<RuleInfo> ruleInfos)
@@ -70,19 +92,28 @@ namespace DiscreteApproach
             return _ruleInfos.FirstOrDefault(rule => rule.Index == ruleName);
         }
 
-        public bool IsRuleIsDuplicateEdge(int inputRule, int confirmedOutput)
+        public bool IsRuleIsDuplicateEdge(int inputRule, int outputRule)
         {
-            return !_ruleInfos.Any(rule => rule.Cause == inputRule && rule.Result == confirmedOutput)
-                   && !_ruleInfos.Any(rule => rule.Cause == inputRule && rule.Index == confirmedOutput)
-                   && !_ruleInfos.Any(rule => rule.Index == inputRule && rule.Result == confirmedOutput);
+            return !_ruleInfos.Any(rule => rule.Cause == inputRule && rule.Result == outputRule)
+                   && !_ruleInfos.Any(rule => rule.Cause == inputRule && rule.Index == outputRule)
+                   && !_ruleInfos.Any(rule => rule.Index == inputRule && rule.Result == outputRule);
         }
 
-        public int GetRuleHeight(int rule)
+        public int GetRuleHeight(int ruleIndex)
         {
-            int height = 1;
-            while (rule > 4)
+            var rule = GetRuleByName(ruleIndex);
+            if (rule != null)
             {
-                rule = GetRuleByName(rule).Cause;
+                if (rule.Height > 0)
+                {
+                    return rule.Height;
+                }
+            }
+
+            int height = 1;
+            while (ruleIndex > 4)
+            {
+                ruleIndex = GetRuleByName(ruleIndex).Cause;
                 height++;
             }
 
@@ -112,13 +143,52 @@ namespace DiscreteApproach
         {
             var relatedToBasisActiveRulesLists = new List<RuleInfo>[2];
 
-            foreach (var basicRule in _basicOutputRules)
+            foreach (var basicRule in _outputRules)
             {
-                relatedToBasisActiveRulesLists[basicRule - _firstBasisOutputRule] = GetAllExecutedRulesBasedOnResult(basicRule);
+                relatedToBasisActiveRulesLists[basicRule - _firstOutputRule] = GetAllExecutedRulesBasedOnResult(basicRule);
             }
 
             return relatedToBasisActiveRulesLists.Select(list => list.ToArray()).ToArray();
         }
 
+
+        public string GetSequence(int rule)
+        {
+            if (GetRuleByName(rule).Height > 2)
+            {
+                return GetSequence(GetRuleByName(rule).Cause) + GetLastOutputCause(rule);
+            }
+            else
+            {
+                return (GetRuleByName(rule).Cause - 1).ToString() + (GetRuleByName(rule).Result - 3).ToString();
+            }
+        }
+
+        public string[] GetAllSequences()
+        {
+            List<string> sequences = new List<string>();
+
+            foreach (var ruleInfo in _ruleInfos)
+            {
+                if (ruleInfo.Weight > 0)
+                {
+                    sequences.Add(GetSequence(ruleInfo.Index));
+                }
+            }
+
+            return sequences.ToArray();
+        }
+
+        private int GetLastOutputCause(int rule)
+        {
+            if (GetRuleByName(rule).Height > 2)
+            {
+                return GetLastOutputCause(GetRuleByName(rule).Result);
+            }
+            else
+            {
+                return GetRuleByName(rule).Result - 3;
+            }
+        }
     }
 }

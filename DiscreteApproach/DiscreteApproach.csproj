@@ -50,6 +50,7 @@
     <Compile Include="Reasoner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuleExecutor.cs" />
+    <Compile Include="RuleInfo.cs" />
     <Compile Include="RulesBuilder.cs" />
     <Compile Include="RulesRepo.cs" />
     <Compile Include="StringExtensions.cs" />

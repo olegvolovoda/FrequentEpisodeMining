@@ -12,7 +12,7 @@ namespace DiscreteApproach
         public Reasoner(List<RuleInfo> ruleInfos)
         {
             _rulesRepo = new RulesRepo(ruleInfos);
-            _rulesRepo.InputRules = new List<int>();
+            _rulesRepo.ActiveRules = new List<int>();
             _rulesRepo.ExecutedRules = new List<int>();
             _evaluator = new Evaluator(_rulesRepo);
         }
@@ -22,38 +22,25 @@ namespace DiscreteApproach
             new RuleExecutor(_rulesRepo).Run();
         }
 
-        public void ApplyTruthRule(int truthOutput)
+        public void ApplyTruthRule(int truthOutput, bool learn = true)
         {
-            new Learner(_rulesRepo, _evaluator).AjustByOutput(truthOutput);
+            new Learner(_rulesRepo, _evaluator).AjustByOutput(truthOutput, learn);
         }
 
         public void InitNextGeneration()
         {
-            _rulesRepo.InputRules = _rulesRepo.ExecutedRules;
+            _rulesRepo.ActiveRules = _rulesRepo.ExecutedRules;
             _rulesRepo.ExecutedRules = new List<int>();
         }
 
         public void AddSensorInfo(int i)
         {
-            _rulesRepo.InputRules.Add(i);
+            _rulesRepo.ActiveRules.Add(i);
         }
 
         public bool[] CalcEffectResults()
         {
             return _evaluator.CalcEffectResults();
         }
-    }
-
-    public class RuleInfo
-    {
-        public RuleInfo()
-        {
-            Weight = 1;
-        }
-
-        public int Index;
-        public int Cause;
-        public int Result;
-        public double Weight;
     }
 }

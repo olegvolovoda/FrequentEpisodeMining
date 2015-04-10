@@ -16,7 +16,7 @@ namespace DiscreteApproach
         {
             var outputRules = new List<int>();
             _rulesRepo.ExecutedRules = new List<int>();
-            foreach (var activeRule in _rulesRepo.InputRules)
+            foreach (var activeRule in _rulesRepo.ActiveRules)
             {
                 var allUpperRules = _rulesRepo.GetRuleByCause(activeRule).ToList();
                 foreach (var upperRule in allUpperRules)
@@ -28,7 +28,7 @@ namespace DiscreteApproach
 
             outputRules.Sort();
             _rulesRepo.ExecutedRules.Sort();
-            _rulesRepo.OutputRules = outputRules;
+            _rulesRepo.PostActiveRules = outputRules;
         }
     }
 }
