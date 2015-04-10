@@ -319,9 +319,7 @@ namespace Tests
         public void Temp()
         {
             //Sample 1:00010101010100000000001010101000000000000010
-            var rules = new List<RuleInfo>();
-
-            var reasoner = new Reasoner(rules);
+            var reasoner = new Reasoner();
 
             var binaryBrain = new BinaryBrain(reasoner);
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DiscreteApproach
@@ -9,14 +10,16 @@ namespace DiscreteApproach
         private List<int> _postActiveRules = new List<int>();
         private List<int> executedRules;
 
-        private int[] _outputRules = new[] { 3, 4 };
-        private int _firstOutputRule = 3;
-        private int _outputRulesCount = 2;
+        //private int[] _outputRules = new[] { 3, 4 };
+        //private int _firstOutputRule = 3;
 
         private int _firstInputRule = 1;
         private int _inputRulesCount = 2;
+
+        private int _outputRulesCount = 2;
         
         private List<RuleInfo> _ruleInfos;
+        
 
         public List<int> ActiveRules
         {
@@ -36,16 +39,15 @@ namespace DiscreteApproach
             set { executedRules = value; }
         }
 
-        public int[] OutputRules
-        {
-            get { return _outputRules; }
-            set { _outputRules = value; }
-        }
+        //public int[] OutputRules
+        //{
+        //    get { return _outputRules; }
+        //    set { _outputRules = value; }
+        //}
 
         public int FirstOutputRule
         {
-            get { return _firstOutputRule; }
-            set { _firstOutputRule = value; }
+            get { return _firstInputRule + InputRulesCount; }
         }
 
         public int OutputRulesCount
@@ -66,9 +68,16 @@ namespace DiscreteApproach
             set { _inputRulesCount = value; }
         }
 
-        public RulesRepo(List<RuleInfo> ruleInfos)
+        public RulesRepo(List<RuleInfo> ruleInfos, int inputRulesCount, int outputRulesCount)
         {
-            _ruleInfos = ruleInfos;
+            _ruleInfos = new List<RuleInfo>();
+            for (int i = 0; i < inputRulesCount + outputRulesCount; i++)
+            {
+                _ruleInfos.Add(new RuleInfo() { Index = i + 1, Successes = 1, Total = 1});
+            }
+            _ruleInfos.AddRange(ruleInfos);
+            this._inputRulesCount = inputRulesCount;
+            this._outputRulesCount = outputRulesCount;
         }
 
         public IEnumerable<RuleInfo> GetRuleByResult(int basicRule)
@@ -83,13 +92,13 @@ namespace DiscreteApproach
 
         public void AddRule(RuleInfo newRule)
         {
-            newRule.Index = _ruleInfos.Any() ? _ruleInfos.Max(rule => rule.Index) + 1 : 5;
+            newRule.Index = _ruleInfos.Max(rule => rule.Index) + 1;
             _ruleInfos.Add(newRule);
         }
 
-        public RuleInfo GetRuleByName(int ruleName)
+        public RuleInfo GetRuleByIndex(int ruleIndex)
         {
-            return _ruleInfos.FirstOrDefault(rule => rule.Index == ruleName);
+            return _ruleInfos.FirstOrDefault(rule => rule.Index == ruleIndex);
         }
 
         public bool IsRuleIsDuplicateEdge(int inputRule, int outputRule)
@@ -101,7 +110,7 @@ namespace DiscreteApproach
 
         public int GetRuleHeight(int ruleIndex)
         {
-            var rule = GetRuleByName(ruleIndex);
+            var rule = GetRuleByIndex(ruleIndex);
             if (rule != null)
             {
                 if (rule.Height > 0)
@@ -111,13 +120,18 @@ namespace DiscreteApproach
             }
 
             int height = 1;
-            while (ruleIndex > 4)
+            while (!IsBasicRule(ruleIndex))
             {
-                ruleIndex = GetRuleByName(ruleIndex).Cause;
+                ruleIndex = GetRuleByIndex(ruleIndex).Cause;
                 height++;
             }
 
             return height;
+        }
+
+        private bool IsBasicRule(int ruleIndex)
+        {
+            return ruleIndex <= InputRulesCount + OutputRulesCount;
         }
 
         public List<RuleInfo> GetAllExecutedRulesBasedOnResult(int basicRule)
@@ -139,40 +153,57 @@ namespace DiscreteApproach
             return GetConfirmRuleSets2().Select(rules => rules.Select(rule => rule.Result).ToArray()).ToArray();
         }
 
+
+        public int[] OutputRules {
+            get { return Enumerable.Range(InputRulesCount + 1, OutputRulesCount).ToArray(); }
+        }
+    
         public RuleInfo[][] GetConfirmRuleSets2()
         {
-            var relatedToBasisActiveRulesLists = new List<RuleInfo>[2];
+            var relatedToBasisActiveRulesLists = new List<RuleInfo>[OutputRulesCount];
 
-            foreach (var basicRule in _outputRules)
+            foreach (var basicRule in OutputRules)
             {
-                relatedToBasisActiveRulesLists[basicRule - _firstOutputRule] = GetAllExecutedRulesBasedOnResult(basicRule);
+                relatedToBasisActiveRulesLists[basicRule - FirstOutputRule] = GetAllExecutedRulesBasedOnResult(basicRule);
             }
 
             return relatedToBasisActiveRulesLists.Select(list => list.ToArray()).ToArray();
         }
 
 
-        public string GetSequence(int rule)
+        public List<int> GetSequence(int rule)
         {
-            if (GetRuleByName(rule).Height > 2)
+            List<int> sequence;
+
+            if (GetRuleByIndex(rule).Height > 2)
             {
-                return GetSequence(GetRuleByName(rule).Cause) + GetLastOutputCause(rule);
+                sequence = GetSequence(GetRuleByIndex(rule).Cause);
+                sequence.Add(GetLastOutputCause(rule));
+                return sequence;
+            }
+            else if (GetRuleByIndex(rule).Height == 2)
+            {
+                sequence = new List<int>();
+                sequence.Add(GetRuleByIndex(rule).Cause);
+                sequence.Add(GetRuleByIndex(rule).Result - InputRulesCount);
+                return sequence;
             }
             else
             {
-                return (GetRuleByName(rule).Cause - 1).ToString() + (GetRuleByName(rule).Result - 3).ToString();
+                return new List<int>();
             }
         }
 
-        public string[] GetAllSequences()
+        public SequenceInfo[] GetAllSequences()
         {
-            List<string> sequences = new List<string>();
+            List<SequenceInfo> sequences = new List<SequenceInfo>();
 
             foreach (var ruleInfo in _ruleInfos)
             {
-                if (ruleInfo.Weight > 0)
+                //if (ruleInfo.Weight > 0 && ruleInfo.Height >= 2)
+                if (ruleInfo.Height >= 2)
                 {
-                    sequences.Add(GetSequence(ruleInfo.Index));
+                    sequences.Add(new SequenceInfo() { Sequence = GetSequence(ruleInfo.Index).ToArray() , Rule = ruleInfo});
                 }
             }
 
@@ -181,14 +212,21 @@ namespace DiscreteApproach
 
         private int GetLastOutputCause(int rule)
         {
-            if (GetRuleByName(rule).Height > 2)
+            if (GetRuleByIndex(rule).Height > 2)
             {
-                return GetLastOutputCause(GetRuleByName(rule).Result);
+                return GetLastOutputCause(GetRuleByIndex(rule).Result);
             }
             else
             {
-                return GetRuleByName(rule).Result - 3;
+                return GetRuleByIndex(rule).Result - InputRulesCount;
             }
         }
+    }
+
+    public class SequenceInfo
+    {
+        public int[] Sequence { get; set; }
+
+        public RuleInfo Rule { get; set; }
     }
 }

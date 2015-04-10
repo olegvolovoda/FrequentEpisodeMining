@@ -18,7 +18,7 @@
         {
             get { 
                 var rate = (double)Successes/Total;
-                var threshold = 0.6;
+                var threshold = 0.7;
                 if (rate > threshold)
                 {
                     return (rate - threshold) * (1 / (1 - threshold));

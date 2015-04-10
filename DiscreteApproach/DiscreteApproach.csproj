@@ -54,6 +54,7 @@
     <Compile Include="RulesBuilder.cs" />
     <Compile Include="RulesRepo.cs" />
     <Compile Include="StringExtensions.cs" />
+    <Compile Include="SymbolsBrain.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

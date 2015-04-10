@@ -9,9 +9,17 @@ namespace DiscreteApproach
         public readonly IRulesRepo _rulesRepo;
         private IEvaluator _evaluator;
 
-        public Reasoner(List<RuleInfo> ruleInfos)
+        public Reasoner() : this(new List<RuleInfo>())
         {
-            _rulesRepo = new RulesRepo(ruleInfos);
+        }
+
+        public Reasoner(List<RuleInfo> ruleInfos) : this(ruleInfos, 2, 2)
+        {
+        }
+
+        public Reasoner(List<RuleInfo> ruleInfos, int inputRulesCount, int outputRulesCount)
+        {
+            _rulesRepo = new RulesRepo(ruleInfos, inputRulesCount, outputRulesCount);
             _rulesRepo.ActiveRules = new List<int>();
             _rulesRepo.ExecutedRules = new List<int>();
             _evaluator = new Evaluator(_rulesRepo);
@@ -41,6 +49,11 @@ namespace DiscreteApproach
         public bool[] CalcEffectResults()
         {
             return _evaluator.CalcEffectResults();
+        }
+
+        public SequenceInfo[] GetAllSequences()
+        {
+            return _rulesRepo.GetAllSequences();
         }
     }
 }

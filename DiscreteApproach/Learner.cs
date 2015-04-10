@@ -23,9 +23,10 @@ namespace DiscreteApproach
             var effectResult = _evaluator.CalcEffectResults();
 
             int prefferedOutput = 0;
-            if (effectResult[0] != effectResult[1])
+
+            if (effectResult.Count(result => result) == 1)
             {
-                prefferedOutput = effectResult[0] ? 3 : 4;
+                prefferedOutput = effectResult.IndexMax(result => result ? 1 : 0) + _rulesRepo.FirstOutputRule;
             }
 
             if (learn)
@@ -33,7 +34,7 @@ namespace DiscreteApproach
                 AlignWeightsAndCreateRules(truthOutput, confirmRuleSets, prefferedOutput);
             }
 
-            newExecutedRules.AddRange(confirmRuleSets[truthOutput - _rulesRepo.FirstBasisOutputRule].Select(rule => rule.Index));
+            newExecutedRules.AddRange(confirmRuleSets[truthOutput - _rulesRepo.FirstOutputRule].Select(rule => rule.Index));
             newExecutedRules.Sort();
             _rulesRepo.ExecutedRules = newExecutedRules;
         }
@@ -43,27 +44,36 @@ namespace DiscreteApproach
 
             if (prefferedOutput == truthOutput || prefferedOutput == 0)
             {
-                var succededRules = confirmedRuleSets[truthOutput - _rulesRepo.FirstBasisOutputRule];
-                var highestRuleIndex = succededRules.IndexMax(rule => rule.Height);
-                if (highestRuleIndex != -1)
+                var succededRules = confirmedRuleSets[truthOutput - _rulesRepo.FirstOutputRule];
                 {
-                    succededRules[highestRuleIndex].AdmitSuccess();
+                    var highestRuleIndex = succededRules.IndexMax(rule => rule.Height);
+                    if (highestRuleIndex != -1)
+                    {
+                        var maxHeight = succededRules[highestRuleIndex].Height;
+                        succededRules.Where(rule => rule.Height == maxHeight).ToList().ForEach(rule => rule.AdmitSuccess());
+                        //succededRules[highestRuleIndex].AdmitSuccess();
+                    }
                 }
 
-                //foreach (var confirmedRule in succededRules)
-                //{
-                //    var r = _rulesRepo.GetRuleByName(confirmedRule.Index);
-                //    if (r != null)
-                //    {
-                //        r.AdmitSuccess();
-                //    }
-                //}
+                var failedOutputs = _rulesRepo.OutputRules.Except(new []{truthOutput}).ToArray();
+                foreach (var failedOutput in failedOutputs)
+                {
+                    var failedRules = confirmedRuleSets[failedOutput - _rulesRepo.FirstOutputRule];
+
+                    var highestRuleIndex = succededRules.IndexMax(rule => rule.Height);
+                    if (highestRuleIndex != -1)
+                    {
+                        var maxHeight = succededRules[highestRuleIndex].Height;
+                        failedRules.Where(rule => rule.Height == maxHeight).ToList().ForEach(rule => rule.AdmitFailure());
+                        //succededRules[highestRuleIndex].AdmitSuccess();
+                    }
+                }
             }
             else
             {
-                foreach (var confirmedRule in confirmedRuleSets[prefferedOutput - _rulesRepo.FirstBasisOutputRule])
+                foreach (var confirmedRule in confirmedRuleSets[prefferedOutput - _rulesRepo.FirstOutputRule])
                 {
-                    var r = _rulesRepo.GetRuleByName(confirmedRule.Index);
+                    var r = _rulesRepo.GetRuleByIndex(confirmedRule.Index);
                     if (r != null)
                     {
                         r.AdmitFailure();
@@ -73,15 +83,16 @@ namespace DiscreteApproach
 
             if (prefferedOutput == 0 || prefferedOutput != truthOutput)
             {
-                foreach (var confirmedOutput in confirmedRuleSets[truthOutput - _rulesRepo.FirstBasisOutputRule].Select(rule => rule.Index).Union(new int[] { truthOutput }))
+                foreach (var confirmedOutput in confirmedRuleSets[truthOutput - _rulesRepo.FirstOutputRule].Select(rule => rule.Index).Union(new int[] { truthOutput }))
                 {
                     foreach (var inputRule in _rulesRepo.ActiveRules)
                     {
                         if (_rulesRepo.IsRuleIsDuplicateEdge(inputRule, confirmedOutput))
                         {
-                            if ((inputRule < 3 || _rulesRepo.GetRuleByName(inputRule).Weight > 0) 
-                                && (confirmedOutput < 5 || _rulesRepo.GetRuleByName(confirmedOutput).Weight > 0) 
-                                && _rulesRepo.GetRuleHeight(inputRule) == _rulesRepo.GetRuleHeight(confirmedOutput))
+                            if (
+                                //((_rulesRepo.GetRuleByIndex(inputRule).Weight > 0 && _rulesRepo.GetRuleByIndex(confirmedOutput).Weight > 0) || _rulesRepo.GetRuleHeight(inputRule) < 0)
+                                //&&
+                                _rulesRepo.GetRuleHeight(inputRule) == _rulesRepo.GetRuleHeight(confirmedOutput))
                             {
                                 var newRule = new RuleInfo
                                 {
@@ -99,7 +110,5 @@ namespace DiscreteApproach
                 }
             }
         }
-
-
     }
 }

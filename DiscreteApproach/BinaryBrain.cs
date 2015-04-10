@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DiscreteApproach
 {
@@ -7,9 +8,17 @@ namespace DiscreteApproach
         private Reasoner reasoner;
         public bool SelfFeedbackMode = false;
 
+        /// <summary>
+        /// Constructor for testing purposes.
+        /// </summary>
         public BinaryBrain(Reasoner reasoner)
         {
             this.reasoner = reasoner;
+        }
+
+        public BinaryBrain()
+        {
+            this.reasoner = new Reasoner();
         }
 
         public string Perceive(string info, bool learn = true)
