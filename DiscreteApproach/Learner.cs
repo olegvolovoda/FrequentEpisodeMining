@@ -46,12 +46,16 @@ namespace DiscreteApproach
             {
                 var succededRules = confirmedRuleSets[truthOutput - _rulesRepo.FirstOutputRule];
                 {
-                    var highestRuleIndex = succededRules.IndexMax(rule => rule.Height);
+                    var highestRuleIndex = succededRules.Where(rule => rule.Weight > 0).IndexMax(rule => rule.Height);
                     if (highestRuleIndex != -1)
                     {
                         var maxHeight = succededRules[highestRuleIndex].Height;
-                        succededRules.Where(rule => rule.Height == maxHeight).ToList().ForEach(rule => rule.AdmitSuccess());
+                        succededRules.Where(rule => rule.Height <= maxHeight).ToList().ForEach(rule => rule.AdmitSuccess());
                         //succededRules[highestRuleIndex].AdmitSuccess();
+                    }
+                    else
+                    {
+                        succededRules.ToList().ForEach(rule => rule.AdmitSuccess());    
                     }
                 }
 
@@ -59,14 +63,15 @@ namespace DiscreteApproach
                 foreach (var failedOutput in failedOutputs)
                 {
                     var failedRules = confirmedRuleSets[failedOutput - _rulesRepo.FirstOutputRule];
+                    failedRules.ToList().ForEach(rule => rule.AdmitFailure());
 
-                    var highestRuleIndex = succededRules.IndexMax(rule => rule.Height);
-                    if (highestRuleIndex != -1)
-                    {
-                        var maxHeight = succededRules[highestRuleIndex].Height;
-                        failedRules.Where(rule => rule.Height == maxHeight).ToList().ForEach(rule => rule.AdmitFailure());
-                        //succededRules[highestRuleIndex].AdmitSuccess();
-                    }
+                    //var highestRuleIndex = succededRules.IndexMax(rule => rule.Height);
+                    //if (highestRuleIndex != -1)
+                    //{
+                    //    var maxHeight = succededRules[highestRuleIndex].Height;
+                    //    failedRules.Where(rule => rule.Height == maxHeight).ToList().ForEach(rule => rule.AdmitFailure());
+                    //    //succededRules[highestRuleIndex].AdmitSuccess();
+                    //}
                 }
             }
             else
@@ -83,32 +88,75 @@ namespace DiscreteApproach
 
             if (prefferedOutput == 0 || prefferedOutput != truthOutput)
             {
-                foreach (var confirmedOutput in confirmedRuleSets[truthOutput - _rulesRepo.FirstOutputRule].Select(rule => rule.Index).Union(new int[] { truthOutput }))
+                bool anyRuleCreated = false;
+
+                foreach (var confirmedOutput in confirmedRuleSets[truthOutput - _rulesRepo.FirstOutputRule].Select(rule => rule.Index).Union(new int[] { truthOutput }))                    
                 {
                     foreach (var inputRule in _rulesRepo.ActiveRules)
                     {
-                        if (_rulesRepo.IsRuleIsDuplicateEdge(inputRule, confirmedOutput))
+                        if (CreateRule(inputRule, confirmedOutput))
                         {
-                            if (
-                                //((_rulesRepo.GetRuleByIndex(inputRule).Weight > 0 && _rulesRepo.GetRuleByIndex(confirmedOutput).Weight > 0) || _rulesRepo.GetRuleHeight(inputRule) < 0)
-                                //&&
-                                _rulesRepo.GetRuleHeight(inputRule) == _rulesRepo.GetRuleHeight(confirmedOutput))
-                            {
-                                var newRule = new RuleInfo
-                                {
-                                    Cause = inputRule,
-                                    Result = confirmedOutput,
-                                    Total = 0,
-                                    Successes = 0
-                                };
-
-                                _rulesRepo.AddRule(newRule);
-                                newRule.Height = _rulesRepo.GetRuleHeight(newRule.Index);
-                            }
+                            anyRuleCreated = true;
                         }
                     }
                 }
+
+                if (!anyRuleCreated)
+                {
+                    _rulesRepo.ActiveRules.Select(rule => _rulesRepo.GetRuleByIndex(rule)).MaxItems(rule => rule.Height).ToList().ForEach(rule => rule.RequestExpand());
+                }
             }
+
+            if (prefferedOutput == truthOutput)
+            {
+                foreach (var confirmedOutput in confirmedRuleSets[truthOutput - _rulesRepo.FirstOutputRule].Where(rule => rule.IsNeedExpand()).Select(rule => rule.Index))
+                {
+                    bool ruleCreated = false;
+
+                    foreach (var inputRule in _rulesRepo.ActiveRules)
+                    {
+                        if (CreateRule(inputRule, confirmedOutput))
+                        {
+                            ruleCreated = true;
+                        }
+                    }
+
+                    if (ruleCreated)
+                    {
+                        _rulesRepo.GetRuleByIndex(confirmedOutput).MarkExpanded();
+                    }
+                    else
+                    {
+                        _rulesRepo.ActiveRules.Select(rule => _rulesRepo.GetRuleByIndex(rule)).MaxItems(rule => rule.Height).ToList().ForEach(rule => rule.RequestExpand());
+                    }
+                }
+            }
+        }
+
+        private bool CreateRule(int inputRule, int outputRule)
+        {
+            if (_rulesRepo.IsRuleIsDuplicateEdge(inputRule, outputRule))
+            {
+                if (
+                    //((_rulesRepo.GetRuleByIndex(inputRule).Weight > 0 && _rulesRepo.GetRuleByIndex(confirmedOutput).Weight > 0) || _rulesRepo.GetRuleHeight(inputRule) < 0)
+                    //&&
+                    _rulesRepo.GetRuleHeight(inputRule) == _rulesRepo.GetRuleHeight(outputRule))
+                {
+                    var newRule = new RuleInfo
+                        {
+                            Cause = inputRule,
+                            Result = outputRule,
+                            Total = 0,
+                            Successes = 0
+                        };
+
+                    _rulesRepo.AddRule(newRule);
+                    newRule.Height = _rulesRepo.GetRuleHeight(newRule.Index);
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

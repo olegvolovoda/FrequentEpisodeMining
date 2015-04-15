@@ -33,5 +33,16 @@ namespace DiscreteApproach
             return indexMax;
         }
 
+        public static IEnumerable<T> MaxItems<T>(this IEnumerable<T> list, Func<T, double> func)
+        {
+            int indexMax = list.IndexMax(func);
+            if (indexMax != -1)
+            {
+                var maxFuncValue = func(list.ElementAt(indexMax));
+                return list.Where(item => Math.Abs(func(item) - maxFuncValue) < 0.001);
+            }
+
+            return new List<T>();
+        }
     }
 }

@@ -17,13 +17,13 @@ namespace DiscreteApproach
 
         public bool[] CalcEffectResults()
         {
-            var confirmingRules = _rulesRepo.GetConfirmRuleSets2().Select(rules => rules.Sum(rule => rule.Weight)).ToArray();
-            var result = new bool[confirmingRules.Count()];
+            var confirmingRulesWeights = _rulesRepo.GetConfirmRuleSets2().Select(rules => rules.Sum(rule => rule.Weight)).ToArray();
+            var result = new bool[confirmingRulesWeights.Count()];
 
             var threshold = 0.2;
-            var indexMax = confirmingRules.IndexMax(count => count);
+            var indexMax = confirmingRulesWeights.IndexMax(count => count);
 
-            if (confirmingRules.Count(rulesCount => confirmingRules[indexMax] <= rulesCount + threshold) == 1)
+            if (confirmingRulesWeights.Count(rulesCount => confirmingRulesWeights[indexMax] <= rulesCount + threshold) == 1)
             {
                 result[indexMax] = true;
             }

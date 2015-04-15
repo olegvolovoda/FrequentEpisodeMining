@@ -13,6 +13,7 @@
         public int Result;
         public int Successes;
         public int Total;
+        private int _expand;
 
         public double Weight
         {
@@ -39,6 +40,21 @@
         public void AdmitFailure()
         {
             Total++;
+        }
+
+        public void RequestExpand()
+        {
+            _expand++;
+        }
+
+        public bool IsNeedExpand()
+        {
+            return _expand > 0;
+        }
+
+        public void MarkExpanded()
+        {
+            _expand = 0;
         }
 
         public int Height { get; set; }

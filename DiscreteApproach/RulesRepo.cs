@@ -200,8 +200,8 @@ namespace DiscreteApproach
 
             foreach (var ruleInfo in _ruleInfos)
             {
-                //if (ruleInfo.Weight > 0 && ruleInfo.Height >= 2)
-                if (ruleInfo.Height >= 2)
+                if (ruleInfo.Weight > 0 && ruleInfo.Height >= 2)
+                //if (ruleInfo.Height >= 2)
                 {
                     sequences.Add(new SequenceInfo() { Sequence = GetSequence(ruleInfo.Index).ToArray() , Rule = ruleInfo});
                 }
