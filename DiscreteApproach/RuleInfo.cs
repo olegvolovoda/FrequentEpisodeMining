@@ -1,4 +1,6 @@
-﻿namespace DiscreteApproach
+﻿using System;
+
+namespace DiscreteApproach
 {
     public class RuleInfo
     {
@@ -15,19 +17,11 @@
         public int Total;
         private int _expand;
 
-        public double Weight
+        public double Probability
         {
-            get { 
-                var rate = (double)Successes/Total;
-                var threshold = 0.7;
-                if (rate > threshold)
-                {
-                    return (rate - threshold) * (1 / (1 - threshold));
-                }
-                else
-                {
-                    return 0;
-                }
+            get
+            {
+                return (double)Successes / Total;
             }
         }
 
@@ -58,5 +52,7 @@
         }
 
         public int Height { get; set; }
+
+        public int BasicOutput{ get; private set; }
     }
 }

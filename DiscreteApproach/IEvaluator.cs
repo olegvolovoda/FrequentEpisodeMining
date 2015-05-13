@@ -2,6 +2,7 @@
 {
     public interface IEvaluator
     {
-        bool[] CalcEffectResults();
+        double[] CalcProbabilities();
+        bool[] CalcReliableOutput(double reliableRate);
     }
 }

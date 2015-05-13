@@ -15,20 +15,16 @@ namespace DiscreteApproach
             _rulesRepo = rulesRepo;
         }
 
-        public bool[] CalcEffectResults()
+        public bool[] CalcReliableOutput(double reliableRate)
         {
-            var confirmingRulesWeights = _rulesRepo.GetConfirmRuleSets2().Select(rules => rules.Sum(rule => rule.Weight)).ToArray();
-            var result = new bool[confirmingRulesWeights.Count()];
+            return CalcProbabilities().Select(p => p >= reliableRate).ToArray();
+        }
 
-            var threshold = 0.2;
-            var indexMax = confirmingRulesWeights.IndexMax(count => count);
+        public double[] CalcProbabilities()
+        {
+            var probabilities = _rulesRepo.GetConfirmRuleSets2().Select(rules => rules.Any() ? rules.Max(rule => rule.Total > 2 ? rule.Probability : 0) : 0).ToArray();
 
-            if (confirmingRulesWeights.Count(rulesCount => confirmingRulesWeights[indexMax] <= rulesCount + threshold) == 1)
-            {
-                result[indexMax] = true;
-            }
-
-            return result;
+            return probabilities;
         }
     }
 }

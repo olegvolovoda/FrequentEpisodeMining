@@ -271,7 +271,6 @@ namespace Tests
 
             var binaryBrain = new BinaryBrain(reasoner);
 
-            var longSequence0 = "10010";
             var longSequence1 = "100101";
             var longSequence2 = "010001";
             //var longSequence1 = "110011";
@@ -346,7 +345,6 @@ namespace Tests
             //var reaction = binaryBrain.PerceiveChain("00010101010100000000001010101000000000000010");
             //var reaction = binaryBrain.PerceiveChain("0001".Repeat(20) + "1101".Repeat(20) + "0001".Repeat(3) + "1101".Repeat(2));
 
-            var sequence = "00011010";
             binaryBrain.PerceiveChain("00011010" + "00111010" + "00111010" + "00011010" + "00011010" + "00111010" + "00011010" + "00111010");
 
             //binaryBrain.PerceiveChain(sequence.Repeat(10));

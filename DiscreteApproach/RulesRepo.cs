@@ -73,7 +73,7 @@ namespace DiscreteApproach
             _ruleInfos = new List<RuleInfo>();
             for (int i = 0; i < inputRulesCount + outputRulesCount; i++)
             {
-                _ruleInfos.Add(new RuleInfo() { Index = i + 1, Successes = 1, Total = 1});
+                _ruleInfos.Add(new RuleInfo() { Index = i + 1, Successes = 1, Total = 1, Height = 1});
             }
             _ruleInfos.AddRange(ruleInfos);
             this._inputRulesCount = inputRulesCount;
@@ -200,7 +200,7 @@ namespace DiscreteApproach
 
             foreach (var ruleInfo in _ruleInfos)
             {
-                if (ruleInfo.Weight > 0 && ruleInfo.Height >= 2)
+                if (ruleInfo.Probability > 0.7 && ruleInfo.Height >= 2)
                 //if (ruleInfo.Height >= 2)
                 {
                     sequences.Add(new SequenceInfo() { Sequence = GetSequence(ruleInfo.Index).ToArray() , Rule = ruleInfo});

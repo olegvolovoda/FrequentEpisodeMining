@@ -32,7 +32,12 @@ namespace DiscreteApproach
 
         public void ApplyTruthRule(int truthOutput, bool learn = true)
         {
-            new Learner(_rulesRepo, _evaluator).AjustByOutput(truthOutput, learn);
+            ApplyTruthRule(new [] {truthOutput}, learn);
+        }
+
+        public void ApplyTruthRule(int[] truthOutputs, bool learn = true)
+        {
+            new Learner(_rulesRepo, _evaluator).AjustByOutput(truthOutputs, learn);
         }
 
         public void InitNextGeneration()
@@ -48,7 +53,12 @@ namespace DiscreteApproach
 
         public bool[] CalcEffectResults()
         {
-            return _evaluator.CalcEffectResults();
+            return _evaluator.CalcReliableOutput(0.7);
+        }
+
+        public double[] CalcProbabilities()
+        {
+            return _evaluator.CalcProbabilities();
         }
 
         public SequenceInfo[] GetAllSequences()

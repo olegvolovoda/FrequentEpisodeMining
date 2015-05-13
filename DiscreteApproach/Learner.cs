@@ -15,119 +15,109 @@ namespace DiscreteApproach
             _evaluator = evaluator;
         }
 
-        public void AjustByOutput(int truthOutput, bool learn = true)
+        public void AjustByOutput(int[] truthOutputs, bool learn = true)
         {
-            var newExecutedRules = new List<int>();
             var confirmRuleSets = _rulesRepo.GetConfirmRuleSets2();
-
-            var effectResult = _evaluator.CalcEffectResults();
-
-            int prefferedOutput = 0;
-
-            if (effectResult.Count(result => result) == 1)
-            {
-                prefferedOutput = effectResult.IndexMax(result => result ? 1 : 0) + _rulesRepo.FirstOutputRule;
-            }
 
             if (learn)
             {
-                AlignWeightsAndCreateRules(truthOutput, confirmRuleSets, prefferedOutput);
+                AlignWeightsAndCreateRules(truthOutputs.ToArray(), confirmRuleSets);
             }
 
-            newExecutedRules.AddRange(confirmRuleSets[truthOutput - _rulesRepo.FirstOutputRule].Select(rule => rule.Index));
-            newExecutedRules.Sort();
-            _rulesRepo.ExecutedRules = newExecutedRules;
+            var confirmedExecutedRules = new List<int>();
+            foreach (var truthOutput1 in truthOutputs)
+            {
+                confirmedExecutedRules.AddRange(confirmRuleSets[truthOutput1 - _rulesRepo.FirstOutputRule].Select(rule => rule.Index));    
+            }
+            
+            confirmedExecutedRules.Sort();
+            _rulesRepo.ExecutedRules = confirmedExecutedRules;
         }
 
-        public void AlignWeightsAndCreateRules(int truthOutput, RuleInfo[][] confirmedRuleSets, int prefferedOutput)
+        public void AlignWeightsAndCreateRules(int[] truthOutputs, RuleInfo[][] confirmedRuleSets)
         {
-
-            if (prefferedOutput == truthOutput || prefferedOutput == 0)
+            
+            foreach (var outputRule in _rulesRepo.OutputRules)
             {
-                var succededRules = confirmedRuleSets[truthOutput - _rulesRepo.FirstOutputRule];
+                var executedRules = confirmedRuleSets[outputRule - _rulesRepo.FirstOutputRule];
+                if (truthOutputs.Contains(outputRule))
                 {
-                    var highestRuleIndex = succededRules.Where(rule => rule.Weight > 0).IndexMax(rule => rule.Height);
-                    if (highestRuleIndex != -1)
-                    {
-                        var maxHeight = succededRules[highestRuleIndex].Height;
-                        succededRules.Where(rule => rule.Height <= maxHeight).ToList().ForEach(rule => rule.AdmitSuccess());
-                        //succededRules[highestRuleIndex].AdmitSuccess();
-                    }
-                    else
-                    {
-                        succededRules.ToList().ForEach(rule => rule.AdmitSuccess());    
-                    }
+                    executedRules.ToList().ForEach(rule => rule.AdmitSuccess());
                 }
-
-                var failedOutputs = _rulesRepo.OutputRules.Except(new []{truthOutput}).ToArray();
-                foreach (var failedOutput in failedOutputs)
+                else
                 {
-                    var failedRules = confirmedRuleSets[failedOutput - _rulesRepo.FirstOutputRule];
-                    failedRules.ToList().ForEach(rule => rule.AdmitFailure());
-
-                    //var highestRuleIndex = succededRules.IndexMax(rule => rule.Height);
-                    //if (highestRuleIndex != -1)
-                    //{
-                    //    var maxHeight = succededRules[highestRuleIndex].Height;
-                    //    failedRules.Where(rule => rule.Height == maxHeight).ToList().ForEach(rule => rule.AdmitFailure());
-                    //    //succededRules[highestRuleIndex].AdmitSuccess();
-                    //}
-                }
-            }
-            else
-            {
-                foreach (var confirmedRule in confirmedRuleSets[prefferedOutput - _rulesRepo.FirstOutputRule])
-                {
-                    var r = _rulesRepo.GetRuleByIndex(confirmedRule.Index);
-                    if (r != null)
-                    {
-                        r.AdmitFailure();
-                    }
+                    executedRules.ToList().ForEach(rule => rule.AdmitFailure());
                 }
             }
 
-            if (prefferedOutput == 0 || prefferedOutput != truthOutput)
+            var reliableOutput = _evaluator.CalcReliableOutput(0.85);
+            foreach (var outputRule in _rulesRepo.OutputRules)
             {
-                bool anyRuleCreated = false;
-
-                foreach (var confirmedOutput in confirmedRuleSets[truthOutput - _rulesRepo.FirstOutputRule].Select(rule => rule.Index).Union(new int[] { truthOutput }))                    
+                if (truthOutputs.Contains(outputRule) && !reliableOutput[outputRule - _rulesRepo.FirstOutputRule])
                 {
-                    foreach (var inputRule in _rulesRepo.ActiveRules)
+                    bool anyRuleCreated = false;
+
+                    foreach (
+                        var confirmedOutput in
+                            confirmedRuleSets[outputRule - _rulesRepo.FirstOutputRule].Select(rule => rule.Index)
+                                                                                        .Union(new int[] {outputRule})
+                        )
                     {
-                        if (CreateRule(inputRule, confirmedOutput))
+                        foreach (var inputRule in _rulesRepo.ActiveRules)
                         {
-                            anyRuleCreated = true;
-                        }
-                    }
-                }
-
-                if (!anyRuleCreated)
-                {
-                    _rulesRepo.ActiveRules.Select(rule => _rulesRepo.GetRuleByIndex(rule)).MaxItems(rule => rule.Height).ToList().ForEach(rule => rule.RequestExpand());
-                }
-            }
-
-            if (prefferedOutput == truthOutput)
-            {
-                foreach (var confirmedOutput in confirmedRuleSets[truthOutput - _rulesRepo.FirstOutputRule].Where(rule => rule.IsNeedExpand()).Select(rule => rule.Index))
-                {
-                    bool ruleCreated = false;
-
-                    foreach (var inputRule in _rulesRepo.ActiveRules)
-                    {
-                        if (CreateRule(inputRule, confirmedOutput))
-                        {
-                            ruleCreated = true;
+                            if (
+                                /*(
+                                    _rulesRepo.GetRuleByIndex(confirmedOutput).Height == 1 || 
+                                 (_rulesRepo.GetRuleByIndex(confirmedOutput).Total > 2 && _rulesRepo.GetRuleByIndex(inputRule).Total > 2)
+                                 ) && */
+                                CreateRule(inputRule, confirmedOutput))
+                            //if (CreateRule(inputRule, confirmedOutput))
+                            {
+                                anyRuleCreated = true;
+                            }
                         }
                     }
 
-                    if (ruleCreated)
+                    if (!anyRuleCreated)
                     {
-                        _rulesRepo.GetRuleByIndex(confirmedOutput).MarkExpanded();
+                        _rulesRepo.ActiveRules.Select(rule => _rulesRepo.GetRuleByIndex(rule))
+                                    .MaxItems(rule => rule.Height)
+                                    .ToList()
+                                    .ForEach(rule => rule.RequestExpand());
                     }
-                    else
+                }
+            }
+
+            foreach (var outputRule in _rulesRepo.OutputRules)
+            {
+                if (truthOutputs.Contains(outputRule) && reliableOutput[outputRule - _rulesRepo.FirstOutputRule])
+                {
+                    foreach (
+                        var outputNeedsExpand in
+                            confirmedRuleSets[outputRule - _rulesRepo.FirstOutputRule].Where(
+                                rule => rule.IsNeedExpand()).Select(rule => rule.Index))
                     {
-                        _rulesRepo.ActiveRules.Select(rule => _rulesRepo.GetRuleByIndex(rule)).MaxItems(rule => rule.Height).ToList().ForEach(rule => rule.RequestExpand());
+                        bool ruleCreated = false;
+
+                        foreach (var inputRule in _rulesRepo.ActiveRules)
+                        {
+                            if (CreateRule(inputRule, outputNeedsExpand))
+                            {
+                                ruleCreated = true;
+                            }
+                        }
+
+                        if (ruleCreated)
+                        {
+                            _rulesRepo.GetRuleByIndex(outputNeedsExpand).MarkExpanded();
+                        }
+                        else
+                        {
+                            _rulesRepo.ActiveRules.Select(rule => _rulesRepo.GetRuleByIndex(rule))
+                                      .MaxItems(rule => rule.Height)
+                                      .ToList()
+                                      .ForEach(rule => rule.RequestExpand());
+                        }
                     }
                 }
             }

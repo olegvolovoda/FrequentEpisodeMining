@@ -56,6 +56,7 @@
     <Compile Include="BinaryBrainTests.cs" />
     <Compile Include="ReasonerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SymbolsBrainTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscreteApproach\DiscreteApproach.csproj">

@@ -24,11 +24,33 @@ namespace Console
             //} 
             //while (input != string.Empty);
 
+            //var brain = new SymbolsBrain();
+            //string text = File.ReadAllText("d:\\text\\text.txt");
+            //string s = text.ToLower().Substring(0, 500).Repeat(25);
+            //var result = brain.PerceiveChain(s);
+            //System.Console.WriteLine(result);
+            ////System.Console.WriteLine(string.Join("\n", brain.GetAllSequences().ToArray()));
+     
+
+            //var writer = File.CreateText("result.txt");
+            //writer.WriteLine(result);
+            //writer.WriteLine(string.Join("\n", brain.GetAllSequences().ToArray().Reverse()));
+            //writer.Close();
+
+            //System.Console.ReadKey();
+
+
             var brain = new SymbolsBrain();
-            string text = File.ReadAllText("d:\\text\\text.txt");
-            string s = text.ToLower().Substring(0, 1000).Repeat(8);
-            var result = brain.PerceiveChain(s);
-            System.Console.WriteLine(string.Join("\n", brain.GetAllSequences().ToArray()));
+
+            //string s = "Twohouseholds,bothalikeindignity, development InfairVerona,wherewelayourscene, Fromancientgrudgebreaktonewmutiny, Wherecivilbloodmakescivilhandsunclean. Fromforththefatalloinsofthesetwofoes".ToLower().Repeat(3);
+            //string s = "house".ToLower();
+            string s = "axxbcxxd".ToLower();
+
+            var result = brain.PerceiveChain1(s.Repeat(15));
+            System.Console.ReadKey();
+
+            System.Console.Out.WriteLine(result);
+            System.Console.Out.WriteLine(string.Join("\n", brain.GetAllSequences().ToArray()));
             System.Console.ReadKey();
         }
     }

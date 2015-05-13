@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace DiscreteApproach
 {
@@ -17,22 +16,47 @@ namespace DiscreteApproach
             this.reasoner = new Reasoner(new List<RuleInfo>(), 26, 26);
         }
 
-        public string Perceive(string info)
+        public string Perceive(char info)
         {
-            reasoner.ApplyTruthRule((int)info.First() - 96 + 26);
-            reasoner.InitNextGeneration();
-            reasoner.AddSensorInfo((int)info.First() - 96);
-            reasoner.NextLogicStep();
-            var effectResults = reasoner.CalcEffectResults();
+            return Perceive(new char[]{info});
+        }
 
-            if (effectResults.Count(result => result) == 1)
+        public string Perceive(char[] infos)
+        {
+            reasoner.ApplyTruthRule(infos.Select(info => info - 96 + 26).ToArray());
+            reasoner.InitNextGeneration();
+            foreach (var info in infos)
             {
-                return ((char)(effectResults.IndexMax(result => result ? 1 : 0) + 97)).ToString();
+                reasoner.AddSensorInfo((int) info - 96);
             }
-            else
+            reasoner.NextLogicStep();
+            var effectResults = reasoner.CalcProbabilities();
+            var dic = new Dictionary<int, double>();
+            for (int i = 0; i < effectResults.Count(); i++)
             {
-                return "_";
+                if (effectResults[i] > 0.7)
+                {
+                    dic.Add(i, effectResults[i]);
+                }
             }
+            dic = dic.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+
+            string s = "[";
+            foreach (var item in dic)
+            {
+                s += (char)(item.Key + 97);
+            }
+            s += "]";
+            return s;
+
+            //if (effectResults.Count(result => result) == 1)
+            //{
+            //    return ((char)(effectResults.IndexMax(result => result ? 1 : 0) + 97)).ToString();
+            //}
+            //else
+            //{
+            //    return "_";
+            //}
         }
 
         public string PerceiveChain(string chain, bool learn = true)
@@ -43,7 +67,29 @@ namespace DiscreteApproach
             {
                 if (Char.IsLower(item))
                 {
-                    result += Perceive(item.ToString());
+                    result += Perceive(item);
+                }
+            }
+
+            return result;
+        }
+
+        public string PerceiveChain1(string chain, bool learn = true)
+        {
+            string result = "";
+
+            var random = new Random(0);
+            foreach (var item in chain)
+            {
+                if (Char.IsLower(item))
+                {
+                    var items = new List<char>();
+                    items.Add(item);
+                    for (int i = 0; i < 4; i++)
+                    {
+                        items.Add((char) random.Next(97, 97 + 26));
+                    }
+                    result += Perceive(items.ToArray());
                 }
             }
 
@@ -57,59 +103,11 @@ namespace DiscreteApproach
             var sequences = reasoner.GetAllSequences();
             foreach (var sequence in sequences)
             {
-                var s = new string(sequence.Sequence.Select(item => (char)(item + 96)).ToArray()) + " \t" + sequence.Rule.Weight; 
+                var s = new string(sequence.Sequence.Select(item => (char)(item + 96)).ToArray()) + " \t" + sequence.Rule.Probability; 
                 strings.Add(s);
             }
 
             return strings;
         }
-    }
-
-    public class SymbolsBrainTests
-    {
-        [Fact]
-        public void Perceive_ShouldPerceive_aaa_Sequence()
-        {
-            var brain = new SymbolsBrain();
-
-            brain.PerceiveChain("aaaa");
-            var result = brain.Perceive("a");
-            Assert.Equal("a", result);
-        }
-
-        [Fact]
-        public void Perceive_ShouldPerceive_deede_Sequence()
-        {
-            var brain = new SymbolsBrain();
-            
-            string s = "Twohouseholds,bothalikeindignity, development InfairVerona,wherewelayourscene, Fromancientgrudgebreaktonewmutiny, Wherecivilbloodmakescivilhandsunclean. Fromforththefatalloinsofthesetwofoes".ToLower().Repeat(3);
-            //brain.PerceiveChain("kk" + "abcdduabbccdk".Repeat(50));// + "abrakadabra" + "abcddddd".Repeat(3));
-            //brain.PerceiveChain(s);
-            var result = brain.PerceiveChain(s.Repeat(6));
-            //Assert.Equal("b", result);
-            Console.Out.WriteLine(result);
-            Console.Out.WriteLine(string.Join("\n", brain.GetAllSequences().ToArray()));
-        }
-
-        [Fact]
-        public void Perceive_ShouldPerceive_abc_Sequence()
-        {
-            var brain = new SymbolsBrain();
-            //string s =
-            //    "Twohouseholds,bothalikeindignity, development InfairVerona,wherewelayourscene,development  Fromancientgrudgebreaktonewmutiny, Wherecivilbloodmakescivilhandsunclean.development Fromforththefatalloinsofthesetwofoes Apairofstar-cross'dloverstaketheirlife; Whosemisadventuredpiteousoverthrows Dowiththeirdeathburytheirparents'strife. Thefearfulpassageoftheirdeath-mark'dlove, Andthecontinuanceoftheirparents'rage, Which,buttheirchildren'send,noughtcouldremove"
-            //        .ToLower().Repeat(8);
-            string s = "aaaaaa" +
-                       String.Format(
-                           //"{0}kkkkkkkkkkkkk{1}asdfandf{0}asdfasdfaldfddcd{1}kdiekdiekdhfghg{0}jdje{1}gdgstdgd{0}rcrsd{1}kdie{0}dsaf{1}cveve{0}sdkdd{1}ss{0}aa{1}".Repeat(3),
-                           "{0}kkkkkkkkkkkkk{1}kkkk{0}kkkkkkkkkkkk{1}kkkkkkkkkk{0}kkkk{1}kkkkkkk{0}kkkkk{1}kkk{0}kkkk{1}kkkkk{0}kkkkk{1}kk{0}kk{0}".Repeat(7),
-                           "bazazac", "dazazae");
-            //brain.PerceiveChain("kk" + "abcdduabbccdk".Repeat(50));// + "abrakadabra" + "abcddddd".Repeat(3));
-            //brain.PerceiveChain(s);
-            var result = brain.PerceiveChain(s);
-            //Assert.Equal("b", result);
-            Console.Out.WriteLine(result);
-            Console.Out.WriteLine(string.Join("\n", brain.GetAllSequences().ToArray()));
-        }
-
     }
 }

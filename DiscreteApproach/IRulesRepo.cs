@@ -9,6 +9,7 @@ namespace DiscreteApproach
         List<int> PostActiveRules { get; set; }
         List<int> ExecutedRules { get; set; }
         int InputRulesCount { get; set; }
+        int OutputRulesCount { get; set; }
         //int[] OutputRules { get; set; }
         int FirstOutputRule { get; }
         IEnumerable<RuleInfo> GetRuleByResult(int basicRule);
