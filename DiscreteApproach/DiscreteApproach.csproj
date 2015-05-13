@@ -45,6 +45,7 @@
     <Compile Include="BinaryBrain.cs" />
     <Compile Include="Evaluator.cs" />
     <Compile Include="IEvaluator.cs" />
+    <Compile Include="IndexDictionary.cs" />
     <Compile Include="IRulesRepo.cs" />
     <Compile Include="Learner.cs" />
     <Compile Include="Reasoner.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="RuleExecutor.cs" />
     <Compile Include="RuleInfo.cs" />
     <Compile Include="RulesBuilder.cs" />
+    <Compile Include="RulesData.cs" />
     <Compile Include="RulesRepo.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="SymbolsBrain.cs" />

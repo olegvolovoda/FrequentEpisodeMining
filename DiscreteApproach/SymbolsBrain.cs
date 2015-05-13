@@ -85,7 +85,7 @@ namespace DiscreteApproach
                 {
                     var items = new List<char>();
                     items.Add(item);
-                    for (int i = 0; i < 4; i++)
+                    for (int i = 0; i < 3; i++)
                     {
                         items.Add((char) random.Next(97, 97 + 26));
                     }
@@ -103,7 +103,7 @@ namespace DiscreteApproach
             var sequences = reasoner.GetAllSequences();
             foreach (var sequence in sequences)
             {
-                var s = new string(sequence.Sequence.Select(item => (char)(item + 96)).ToArray()) + " \t" + sequence.Rule.Probability; 
+                var s = new string(sequence.Sequence.Select(item => (char)(item + 96)).ToArray()) + " \t" + sequence.Rule.Probability + " \t" + sequence.Rule.Index; 
                 strings.Add(s);
             }
 

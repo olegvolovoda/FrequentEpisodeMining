@@ -11,12 +11,13 @@ namespace DiscreteApproach
         int InputRulesCount { get; set; }
         int OutputRulesCount { get; set; }
         //int[] OutputRules { get; set; }
+        int FirstInputRule { get; }
         int FirstOutputRule { get; }
         IEnumerable<RuleInfo> GetRuleByResult(int basicRule);
         IEnumerable<RuleInfo> GetRuleByCause(int activeRule);
         void AddRule(RuleInfo newRule);
         RuleInfo GetRuleByIndex(int ruleName);
-        bool IsRuleIsDuplicateEdge(int inputRule, int confirmedOutput);
+        bool IsRuleNotDuplicatesEdge(int inputRule, int confirmedOutput);
         int GetRuleHeight(int rule);
         List<RuleInfo> GetAllExecutedRulesBasedOnResult(int basicRule);
         int[][] GetConfirmRuleSets();

@@ -24,7 +24,7 @@ namespace Tests
             //string s = "Twohouseholds,bothalikeindignity, development InfairVerona,wherewelayourscene, Fromancientgrudgebreaktonewmutiny, Wherecivilbloodmakescivilhandsunclean. Fromforththefatalloinsofthesetwofoes".ToLower().Repeat(3);
             string s = "house".ToLower();
             
-            var result = brain.PerceiveChain1(s.Repeat(15));
+            var result = brain.PerceiveChain1(s.Repeat(8));
             
             Console.Out.WriteLine(result);
             Console.Out.WriteLine(string.Join("\n", brain.GetAllSequences().ToArray()));

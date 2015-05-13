@@ -66,11 +66,11 @@ namespace DiscreteApproach
                         foreach (var inputRule in _rulesRepo.ActiveRules)
                         {
                             if (
-                                /*(
+                                (
                                     _rulesRepo.GetRuleByIndex(confirmedOutput).Height == 1 || 
                                  (_rulesRepo.GetRuleByIndex(confirmedOutput).Total > 2 && _rulesRepo.GetRuleByIndex(inputRule).Total > 2)
-                                 ) && */
-                                CreateRule(inputRule, confirmedOutput))
+                                 ) && 
+                      CreateRule(inputRule, confirmedOutput))
                             //if (CreateRule(inputRule, confirmedOutput))
                             {
                                 anyRuleCreated = true;
@@ -125,25 +125,27 @@ namespace DiscreteApproach
 
         private bool CreateRule(int inputRule, int outputRule)
         {
-            if (_rulesRepo.IsRuleIsDuplicateEdge(inputRule, outputRule))
+            if (_rulesRepo.GetRuleHeight(inputRule) == _rulesRepo.GetRuleHeight(outputRule) &&
+                _rulesRepo.IsRuleNotDuplicatesEdge(inputRule, outputRule)
+                && (_rulesRepo.GetRuleHeight(inputRule) == 1
+                    || (_rulesRepo.GetRuleHeight(inputRule) == 2 
+                        && (_rulesRepo.GetRuleByIndex(inputRule).Result - _rulesRepo.FirstOutputRule == _rulesRepo.GetRuleByIndex(outputRule).Cause - _rulesRepo.FirstInputRule))
+                        || (_rulesRepo.GetRuleHeight(inputRule) > 2
+                        && (_rulesRepo.GetRuleByIndex(inputRule).Result == _rulesRepo.GetRuleByIndex(outputRule).Cause))
+                    )
+                )
             {
-                if (
-                    //((_rulesRepo.GetRuleByIndex(inputRule).Weight > 0 && _rulesRepo.GetRuleByIndex(confirmedOutput).Weight > 0) || _rulesRepo.GetRuleHeight(inputRule) < 0)
-                    //&&
-                    _rulesRepo.GetRuleHeight(inputRule) == _rulesRepo.GetRuleHeight(outputRule))
-                {
-                    var newRule = new RuleInfo
-                        {
-                            Cause = inputRule,
-                            Result = outputRule,
-                            Total = 0,
-                            Successes = 0
-                        };
+                var newRule = new RuleInfo
+                    {
+                        Cause = inputRule,
+                        Result = outputRule,
+                        Total = 0,
+                        Successes = 0
+                    };
 
-                    _rulesRepo.AddRule(newRule);
-                    newRule.Height = _rulesRepo.GetRuleHeight(newRule.Index);
-                    return true;
-                }
+                _rulesRepo.AddRule(newRule);
+                newRule.Height = _rulesRepo.GetRuleHeight(newRule.Index);
+                return true;
             }
 
             return false;

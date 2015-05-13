@@ -17,9 +17,9 @@ namespace DiscreteApproach
         private int _inputRulesCount = 2;
 
         private int _outputRulesCount = 2;
-        
-        private List<RuleInfo> _ruleInfos;
-        
+
+        private readonly RulesData _rulesData;
+
 
         public List<int> ActiveRules
         {
@@ -45,6 +45,11 @@ namespace DiscreteApproach
         //    set { _outputRules = value; }
         //}
 
+        public int FirstInputRule
+        {
+            get { return _firstInputRule; }
+        }
+
         public int FirstOutputRule
         {
             get { return _firstInputRule + InputRulesCount; }
@@ -56,12 +61,6 @@ namespace DiscreteApproach
             set { _outputRulesCount = value; }
         }
 
-        public int FirstInputRule
-        {
-            get { return _firstInputRule; }
-            set { _firstInputRule = value; }
-        }
-
         public int InputRulesCount
         {
             get { return _inputRulesCount; }
@@ -70,42 +69,40 @@ namespace DiscreteApproach
 
         public RulesRepo(List<RuleInfo> ruleInfos, int inputRulesCount, int outputRulesCount)
         {
-            _ruleInfos = new List<RuleInfo>();
+            _rulesData = new RulesData();
             for (int i = 0; i < inputRulesCount + outputRulesCount; i++)
             {
-                _ruleInfos.Add(new RuleInfo() { Index = i + 1, Successes = 1, Total = 1, Height = 1});
+                var rule = new RuleInfo() { Successes = 1, Total = 1, Height = 1 };
+                AddRule(rule);
             }
-            _ruleInfos.AddRange(ruleInfos);
+            ruleInfos.ForEach(rule => AddRule(rule));
             this._inputRulesCount = inputRulesCount;
             this._outputRulesCount = outputRulesCount;
         }
 
         public IEnumerable<RuleInfo> GetRuleByResult(int basicRule)
         {
-            return _ruleInfos.Where(rule => rule.Result == basicRule);
+            return _rulesData.GetRulesByResult(basicRule);
         }
 
         public IEnumerable<RuleInfo> GetRuleByCause(int activeRule)
         {
-            return _ruleInfos.Where(rule => rule.Cause == activeRule);
+            return _rulesData.GetRuleByCause(activeRule);
         }
 
         public void AddRule(RuleInfo newRule)
         {
-            newRule.Index = _ruleInfos.Max(rule => rule.Index) + 1;
-            _ruleInfos.Add(newRule);
+            _rulesData.AddRule(newRule);
         }
 
         public RuleInfo GetRuleByIndex(int ruleIndex)
         {
-            return _ruleInfos.FirstOrDefault(rule => rule.Index == ruleIndex);
+            return _rulesData.GetRuleByIndex(ruleIndex);
         }
 
-        public bool IsRuleIsDuplicateEdge(int inputRule, int outputRule)
+        public bool IsRuleNotDuplicatesEdge(int inputRule, int outputRule)
         {
-            return !_ruleInfos.Any(rule => rule.Cause == inputRule && rule.Result == outputRule)
-                   && !_ruleInfos.Any(rule => rule.Cause == inputRule && rule.Index == outputRule)
-                   && !_ruleInfos.Any(rule => rule.Index == inputRule && rule.Result == outputRule);
+            return !_rulesData.IsAnyRulesByCauseAndResult(inputRule, outputRule);
         }
 
         public int GetRuleHeight(int ruleIndex)
@@ -198,16 +195,16 @@ namespace DiscreteApproach
         {
             List<SequenceInfo> sequences = new List<SequenceInfo>();
 
-            foreach (var ruleInfo in _ruleInfos)
+            foreach (var ruleInfo in _rulesData.AllRuleInfos())
             {
-                if (ruleInfo.Probability > 0.7 && ruleInfo.Height >= 2)
-                //if (ruleInfo.Height >= 2)
+                //if (ruleInfo.Probability > 0.7 && ruleInfo.Height >= 2)
+                if (ruleInfo.Height >= 2)
                 {
                     sequences.Add(new SequenceInfo() { Sequence = GetSequence(ruleInfo.Index).ToArray() , Rule = ruleInfo});
                 }
             }
 
-            return sequences.ToArray();
+            return sequences.OrderBy(item => item.Sequence.Sum()).ToArray();
         }
 
         private int GetLastOutputCause(int rule)

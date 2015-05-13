@@ -46,11 +46,18 @@ namespace Console
             //string s = "house".ToLower();
             string s = "axxbcxxd".ToLower();
 
-            var result = brain.PerceiveChain1(s.Repeat(15));
-            System.Console.ReadKey();
+            var result = brain.PerceiveChain1(s.Repeat(30));
 
             System.Console.Out.WriteLine(result);
+            System.Console.ReadKey();
+
             System.Console.Out.WriteLine(string.Join("\n", brain.GetAllSequences().ToArray()));
+
+            var writer = File.CreateText("result.txt");
+            writer.WriteLine(result);
+            writer.WriteLine(string.Join("\n", brain.GetAllSequences().ToArray()));
+            writer.Close();
+
             System.Console.ReadKey();
         }
     }
