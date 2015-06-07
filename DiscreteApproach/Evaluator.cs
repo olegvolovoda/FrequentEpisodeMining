@@ -20,9 +20,23 @@ namespace DiscreteApproach
             return CalcProbabilities().Select(p => p >= reliableRate).ToArray();
         }
 
+        public bool[] CalcReliableOutput1(double reliableRate)
+        {
+            return CalcProbabilities().Select(p => p >= reliableRate).ToArray();
+        }
+
         public double[] CalcProbabilities()
         {
-            var probabilities = _rulesRepo.GetConfirmRuleSets2().Select(rules => rules.Any() ? rules.Max(rule => rule.Total > 2 ? rule.Probability : 0) : 0).ToArray();
+            var probabilities =
+                _rulesRepo.GetConfirmRuleSets2()
+                          .Select(
+                              rules =>
+                              rules.Any()
+                                  ? rules.Max(
+                                      rule =>
+                                        rule.Total > 3 ? Math.Pow(rule.Probability, 1 + ((double) rule.Height - 1)/4) : 0)
+                                  : 0)
+                          .ToArray();
 
             return probabilities;
         }

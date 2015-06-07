@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using DiscreteApproach;
 using Xunit;
 
@@ -6,6 +8,8 @@ namespace Tests
 {
     public class SymbolsBrainTests
     {
+        private readonly ChainBuilder _chainBuilder = new ChainBuilder();
+
         [Fact]
         public void Perceive_ShouldPerceive_aaa_Sequence()
         {
@@ -23,8 +27,19 @@ namespace Tests
             
             //string s = "Twohouseholds,bothalikeindignity, development InfairVerona,wherewelayourscene, Fromancientgrudgebreaktonewmutiny, Wherecivilbloodmakescivilhandsunclean. Fromforththefatalloinsofthesetwofoes".ToLower().Repeat(3);
             string s = "house".ToLower();
-            
-            var result = brain.PerceiveChain1(s.Repeat(8));
+            var chain = new ChainBuilder().Build(new WordRepeat[] { new WordRepeat() { Word = s, Times = 50, MinGap = 8, MaxGap = 12 }, new WordRepeat() { Word = "window", Times = 50, MinGap = 2, MaxGap = 20 } }, 150, 3);
+
+            //Console.Out.WriteLine(string.Join("\n", brain.GetAllSequences().ToArray()));
+
+            var result = brain.PerceiveChain1(chain);
+
+            result = brain.PerceiveChain("hous", false);
+            //Assert.Equal("e", result);
+            //Assert.Equal('e', result.Last());
+
+            result = brain.PerceiveChain("windo", false);
+            //Assert.Equal("w", result);
+            //Assert.Equal('w', result.Last());
             
             Console.Out.WriteLine(result);
             Console.Out.WriteLine(string.Join("\n", brain.GetAllSequences().ToArray()));

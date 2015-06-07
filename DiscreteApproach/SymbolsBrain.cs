@@ -42,11 +42,24 @@ namespace DiscreteApproach
             dic = dic.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
 
             string s = "[";
+            int shift = 0;
+            foreach (var ch in infos)
+            {
+                s += ch;
+                shift++;
+                if (shift == 1)
+                    s += "   ";
+            }
+            s += "]\n";
+
+            s += "[";
             foreach (var item in dic)
             {
                 s += (char)(item.Key + 97);
             }
-            s += "]";
+            s += "]      ";
+
+            
             return s;
 
             //if (effectResults.Count(result => result) == 1)
@@ -74,23 +87,13 @@ namespace DiscreteApproach
             return result;
         }
 
-        public string PerceiveChain1(string chain, bool learn = true)
+        public string PerceiveChain1(char[][] chain, bool learn = true)
         {
             string result = "";
 
-            var random = new Random(0);
-            foreach (var item in chain)
+            foreach (var chars in chain)
             {
-                if (Char.IsLower(item))
-                {
-                    var items = new List<char>();
-                    items.Add(item);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        items.Add((char) random.Next(97, 97 + 26));
-                    }
-                    result += Perceive(items.ToArray());
-                }
+                result += Perceive(chars);
             }
 
             return result;
@@ -100,10 +103,10 @@ namespace DiscreteApproach
         {
             var strings = new List<string>();
 
-            var sequences = reasoner.GetAllSequences();
+            var sequences = reasoner.GetAllSequences().OrderByDescending(sequence => sequence.Rule.Successes);
             foreach (var sequence in sequences)
             {
-                var s = new string(sequence.Sequence.Select(item => (char)(item + 96)).ToArray()) + " \t" + sequence.Rule.Probability + " \t" + sequence.Rule.Index; 
+                var s = new string(sequence.Sequence.Select(item => (char)(item + 96)).ToArray()) + " \t" + sequence.Rule.Probability + " \t" + sequence.Rule.Index + " " + sequence.Rule.Successes + "\\" + sequence.Rule.Total; 
                 strings.Add(s);
             }
 

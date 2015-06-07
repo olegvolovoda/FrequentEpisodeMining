@@ -197,14 +197,19 @@ namespace DiscreteApproach
 
             foreach (var ruleInfo in _rulesData.AllRuleInfos())
             {
-                //if (ruleInfo.Probability > 0.7 && ruleInfo.Height >= 2)
-                if (ruleInfo.Height >= 2)
+                if (ruleInfo.Probability > 0.7 && ruleInfo.Height >= 2)
+                //if (ruleInfo.Height >= 2)
                 {
                     sequences.Add(new SequenceInfo() { Sequence = GetSequence(ruleInfo.Index).ToArray() , Rule = ruleInfo});
                 }
             }
 
             return sequences.OrderBy(item => item.Sequence.Sum()).ToArray();
+        }
+
+        public void  RemoveUnsufficientRules(int height)
+        {
+            _rulesData.GetRulesByHeightAndMaxSuccesses(height, 0);
         }
 
         private int GetLastOutputCause(int rule)

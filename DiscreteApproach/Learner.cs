@@ -8,6 +8,7 @@ namespace DiscreteApproach
     {
         private IRulesRepo _rulesRepo;
         private IEvaluator _evaluator;
+        private const double ReliableRuleRate = 0.85;
 
         public Learner(IRulesRepo rulesRepo, IEvaluator evaluator)
         {
@@ -25,9 +26,9 @@ namespace DiscreteApproach
             }
 
             var confirmedExecutedRules = new List<int>();
-            foreach (var truthOutput1 in truthOutputs)
+            foreach (var truthOutput in truthOutputs)
             {
-                confirmedExecutedRules.AddRange(confirmRuleSets[truthOutput1 - _rulesRepo.FirstOutputRule].Select(rule => rule.Index));    
+                confirmedExecutedRules.AddRange(confirmRuleSets[truthOutput - _rulesRepo.FirstOutputRule].Select(rule => rule.Index));    
             }
             
             confirmedExecutedRules.Sort();
@@ -42,6 +43,7 @@ namespace DiscreteApproach
                 var executedRules = confirmedRuleSets[outputRule - _rulesRepo.FirstOutputRule];
                 if (truthOutputs.Contains(outputRule))
                 {
+                    //executedRules.IndexMax(rule => rule.Probability > ReliableRuleRate)
                     executedRules.ToList().ForEach(rule => rule.AdmitSuccess());
                 }
                 else
@@ -50,7 +52,7 @@ namespace DiscreteApproach
                 }
             }
 
-            var reliableOutput = _evaluator.CalcReliableOutput(0.85);
+            var reliableOutput = _evaluator.CalcReliableOutput1(ReliableRuleRate);
             foreach (var outputRule in _rulesRepo.OutputRules)
             {
                 if (truthOutputs.Contains(outputRule) && !reliableOutput[outputRule - _rulesRepo.FirstOutputRule])
@@ -125,7 +127,7 @@ namespace DiscreteApproach
 
         private bool CreateRule(int inputRule, int outputRule)
         {
-            if (_rulesRepo.GetRuleHeight(inputRule) == _rulesRepo.GetRuleHeight(outputRule) &&
+            if (_rulesRepo.GetRuleHeight(inputRule) < 5 && _rulesRepo.GetRuleHeight(inputRule) == _rulesRepo.GetRuleHeight(outputRule) &&
                 _rulesRepo.IsRuleNotDuplicatesEdge(inputRule, outputRule)
                 && (_rulesRepo.GetRuleHeight(inputRule) == 1
                     || (_rulesRepo.GetRuleHeight(inputRule) == 2 

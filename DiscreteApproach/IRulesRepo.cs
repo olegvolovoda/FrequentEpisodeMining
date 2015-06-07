@@ -24,5 +24,6 @@ namespace DiscreteApproach
         RuleInfo[][] GetConfirmRuleSets2();
         List<int> GetSequence(int rule);
         SequenceInfo[] GetAllSequences();
+        void RemoveUnsufficientRules(int height);
     }
 }

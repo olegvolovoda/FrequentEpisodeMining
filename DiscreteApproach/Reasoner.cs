@@ -7,6 +7,7 @@ namespace DiscreteApproach
     public class Reasoner
     {
         public readonly IRulesRepo _rulesRepo;
+        public int _time = 1;
         private IEvaluator _evaluator;
 
         public Reasoner() : this(new List<RuleInfo>())
@@ -44,6 +45,16 @@ namespace DiscreteApproach
         {
             _rulesRepo.ActiveRules = _rulesRepo.ExecutedRules;
             _rulesRepo.ExecutedRules = new List<int>();
+
+            _time++;
+
+            for (int i = 2; i < 6; i++)
+            {
+                if (_time % (int)(Math.Pow(_rulesRepo.InputRulesCount, i) / 30) == 0)
+                {
+                    _rulesRepo.RemoveUnsufficientRules(i);
+                }   
+            }
         }
 
         public void AddSensorInfo(int i)

@@ -4,7 +4,7 @@ namespace DiscreteApproach
 {
     public class IndexDictionary<K, V>
     {
-        private Dictionary<K, List<V>> _indexData = new Dictionary<K, List<V>>();
+        private readonly Dictionary<K, List<V>> _indexData = new Dictionary<K, List<V>>();
 
         public void Add(K key, V value)
         {

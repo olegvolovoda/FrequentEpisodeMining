@@ -11,15 +11,13 @@ namespace DiscreteApproach
         private readonly IndexDictionary<int, RuleInfo> _byResultIndex = new IndexDictionary<int, RuleInfo>();
         private readonly IndexDictionary<int, RuleInfo> _byCauseIndex = new IndexDictionary<int, RuleInfo>();
         private readonly Dictionary<int, RuleInfo> _byIndexIndex = new Dictionary<int, RuleInfo>();
-        private readonly Dictionary<Tuple<int, int>, RuleInfo> _byCauseAndResultIndex = new Dictionary<Tuple<int, int>, RuleInfo>(); 
+        private readonly Dictionary<Tuple<int, int>, RuleInfo> _byCauseAndResultIndex = new Dictionary<Tuple<int, int>, RuleInfo>();
 
-        public RulesData()
-        {
-        }
+        private int _maxIndex = 0;
 
         public void AddRule(RuleInfo newRule)
         {
-            newRule.Index = _ruleInfos.Any() ? _ruleInfos.Max(rule => rule.Index) + 1 : 1;
+            newRule.Index = ++_maxIndex;
             _ruleInfos.Add(newRule);
 
             _byResultIndex.Add(newRule.Result, newRule);
@@ -54,6 +52,12 @@ namespace DiscreteApproach
         public List<RuleInfo> AllRuleInfos()
         {
             return _ruleInfos;
+        }
+
+        public void GetRulesByHeightAndMaxSuccesses(int height, int maxSuccesses)
+        {
+            _ruleInfos.RemoveAll(rule => rule.Height == height && rule.Successes <= maxSuccesses);
+            var t = _ruleInfos.Count(rule => rule.Height == height);
         }
     }
 }

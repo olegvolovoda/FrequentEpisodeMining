@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinaryBrain.cs" />
+    <Compile Include="ChainBuilder.cs" />
     <Compile Include="Evaluator.cs" />
     <Compile Include="IEvaluator.cs" />
     <Compile Include="IndexDictionary.cs" />
