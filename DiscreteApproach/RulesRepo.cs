@@ -8,7 +8,7 @@ namespace DiscreteApproach
     {
         private List<int> _activeRules;
         private List<int> _postActiveRules = new List<int>();
-        private List<int> executedRules;
+        private SortedSet<int> executedRules;
 
         //private int[] _outputRules = new[] { 3, 4 };
         //private int _firstOutputRule = 3;
@@ -33,10 +33,10 @@ namespace DiscreteApproach
             set { _postActiveRules = value; }
         }
 
-        public List<int> ExecutedRules
+        public ICollection<int> ExecutedRules
         {
             get { return executedRules; }
-            set { executedRules = value; }
+            set { executedRules = new SortedSet<int>(value); }
         }
 
         //public int[] OutputRules
@@ -80,14 +80,14 @@ namespace DiscreteApproach
             this._outputRulesCount = outputRulesCount;
         }
 
-        public IEnumerable<RuleInfo> GetRuleByResult(int basicRule)
+        public IEnumerable<RuleInfo> GetRulesByResult(int basicRule)
         {
             return _rulesData.GetRulesByResult(basicRule);
         }
 
-        public IEnumerable<RuleInfo> GetRuleByCause(int activeRule)
+        public IEnumerable<RuleInfo> GetRulesByCause(int activeRule)
         {
-            return _rulesData.GetRuleByCause(activeRule);
+            return _rulesData.GetRulesByCause(activeRule);
         }
 
         public void AddRule(RuleInfo newRule)
@@ -135,7 +135,7 @@ namespace DiscreteApproach
         {
             var upperRules = new List<RuleInfo>();
 
-            var higherActiveRules = GetRuleByResult(basicRule).Where(rule => ExecutedRules.Contains(rule.Index));
+            var higherActiveRules = GetRulesByResult(basicRule).Where(rule => ExecutedRules.Contains(rule.Index));
             foreach (var higherActiveRule in higherActiveRules)
             {
                 upperRules.Add(higherActiveRule);
@@ -168,9 +168,9 @@ namespace DiscreteApproach
         }
 
 
-        public List<int> GetSequence(int rule)
+        public IList<int> GetSequence(int rule)
         {
-            List<int> sequence;
+            IList<int> sequence;
 
             if (GetRuleByIndex(rule).Height > 2)
             {

@@ -43,7 +43,7 @@ namespace DiscreteApproach
 
         public void InitNextGeneration()
         {
-            _rulesRepo.ActiveRules = _rulesRepo.ExecutedRules;
+            _rulesRepo.ActiveRules = _rulesRepo.ExecutedRules.ToList();
             _rulesRepo.ExecutedRules = new List<int>();
 
             _time++;

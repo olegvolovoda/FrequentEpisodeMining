@@ -34,14 +34,15 @@ namespace DiscreteApproach
             return _byResultIndex.GetValue(resultRule);
         }
 
-        public IEnumerable<RuleInfo> GetRuleByCause(int causeRule)
+        public IEnumerable<RuleInfo> GetRulesByCause(int causeRule)
         {
             return _byCauseIndex.GetValue(causeRule);
         }
 
         public RuleInfo GetRuleByIndex(int ruleIndex)
         {
-            return _byIndexIndex.ContainsKey(ruleIndex) ? _byIndexIndex[ruleIndex] : null;
+            RuleInfo rule;
+            return _byIndexIndex.TryGetValue(ruleIndex, out rule) ? rule : null;
         }
 
         public bool IsAnyRulesByCauseAndResult(int inputRule, int outputRule)

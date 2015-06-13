@@ -57,7 +57,7 @@ namespace Console
             //                new WordRepeat() {Word = "xbc", MinGap = 5, MaxGap = 30},
             //                new WordRepeat() {Word = "xca", MinGap = 3, MaxGap = 27},
             //            }, 1500, 1);
-            var chain = new ChainBuilder().Build(new WordRepeat[] { new WordRepeat() { Word = "axxb", MinGap = 8, MaxGap = 12 }, new WordRepeat() { Word = "cxxd", MinGap = 2, MaxGap = 12 } }, 1000, 3);
+            var chain = new ChainBuilder().Build(new WordRepeat[] { new WordRepeat() { Word = "axxb", MinGap = 8, MaxGap = 12 }, new WordRepeat() { Word = "cxxd", MinGap = 2, MaxGap = 12 } }, 10000, 3);
             //var chain = new ChainBuilder().Build(new WordRepeat[] { new WordRepeat() { Word = "house", Times = 100, MinGap = 8, MaxGap = 12 }, new WordRepeat() { Word = "window", Times = 100, MinGap = 2, MaxGap = 20 } }, 1000, 3);
             //var chain = new ChainBuilder().Build(new WordRepeat[] {}, 500, 3);
             //var chain = new ChainBuilder().Build(new WordRepeat[] { new WordRepeat() { Word = "house", Times = 50, MinGap = 8, MaxGap = 12 }}, 700, 3);
