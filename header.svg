@@ -1,0 +1,15 @@
+<svg fill="none" viewBox="0 0 400 400" width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+    <foreignObject width="100%" height="100%">
+      <div xmlns="http://www.w3.org/1999/xhtml">
+        <style>
+          .arc {
+    		     width: 150px;
+    		     height: 150px;
+    		     background: radial-gradient(2000px 2000px at top -1061px left 1062px, transparent 1500px, #00f 1501px);
+    		}
+        </style>
+        <div class="rectangle">
+            <div class="arc"></div>
+        </div>
+    </div>
+</svg>
